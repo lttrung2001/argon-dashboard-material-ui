@@ -28,25 +28,131 @@ import Table from "examples/Tables/Table";
 
 // Data
 import coursesTableData from "layouts/tables/data/coursesTableData";
-import classroomsTableData, { mapClassroomToView } from "layouts/tables/data/classroomsTableData";
+import classroomsTableData from "layouts/tables/data/classroomsTableData";
 import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/Axios";
-import { Box, Button, CardMedia, Dialog, DialogActions, Input, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "components/UploadFileButton";
 import { Course, Function } from "./data/coursesTableData";
 import ArgonBadge from "components/ArgonBadge";
 import { Completion } from "./data/classroomsTableData";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 function Tables() {
+  //////////////////////////////////////// BEGIN TRANSFER LIST ////////////////////////////////////////
+  function filterObjectsNotInListByProperty(arrOfObjects, listOfIds) {
+    return arrOfObjects.filter(obj => !listOfIds.includes(obj.id));
+  }
+
+  function not(a, b) {
+    return a.filter((value) => b.indexOf(value) === -1);
+  }
+
+  function intersection(a, b) {
+    return a.filter((value) => b.indexOf(value) !== -1);
+  }
+
+  const [checked, setChecked] = React.useState([]);
+  const [left, setLeft] = React.useState([]);
+  const [right, setRight] = React.useState([]);
+
+  const leftChecked = intersection(checked, left);
+  const rightChecked = intersection(checked, right);
+
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
+
+  const handleAllRight = () => {
+    setRight(right.concat(left));
+    setLeft([]);
+  };
+
+  const handleCheckedRight = () => {
+    setRight(right.concat(leftChecked));
+    setLeft(not(left, leftChecked));
+    setChecked(not(checked, leftChecked));
+  };
+
+  const handleCheckedLeft = () => {
+    setLeft(left.concat(rightChecked));
+    setRight(not(right, rightChecked));
+    setChecked(not(checked, rightChecked));
+  };
+
+  const handleAllLeft = () => {
+    setLeft(left.concat(right));
+    setRight([]);
+  };
+
+  const customList = (subjects) => (
+    <Paper sx={{ width: 200, height: 230, overflow: 'auto' }}>
+      <List dense component="div" role="list">
+        {subjects.map((value) => {
+          const labelId = `transfer-list-item-${value.id}-label`;
+
+          return (
+            <ListItemButton
+              key={value.id}
+              role="listitem"
+              button
+              onClick={handleToggle(value)}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  checked={checked.indexOf(value) !== -1}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{
+                    'aria-labelledby': labelId,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={value.name} />
+            </ListItemButton>
+          );
+        })}
+      </List>
+    </Paper>
+  );
+  //////////////////////////////////////// END TRANSFER LIST ////////////////////////////////////////
+
+  //////////////////////////////////////// BEGIN COMBOBOX SELECT COURSE TO CREATE NEW CLASSROOM ////////////////////////////////////////
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
+  //////////////////////////////////////// END COMBOBOX SELECT COURSE TO CREATE NEW CLASSROOM ////////////////////////////////////////
+
   const { columns } = coursesTableData;
   const { columns: prCols } = classroomsTableData;
   const [courses, setCourses] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
+  const [subjects, setSubjects] = React.useState([]);
+  const [teachers, setTeachers] = React.useState([]);
   const [createCourseImage, setCreateCourseImage] = React.useState();
+  const [updateCourseImage, setUpdateCourseImage] = React.useState();
   const [showCreateCoursePopup, setShowCreateCoursePopup] = React.useState(false);
+  const [showCreateClassroomPopup, setShowCreateClassroomPopup] = React.useState(false);
   const [selectedCourse, setSelectedCourse] = React.useState();
+  const [createClassroomCourseSelected, setCreateClassroomCourseSelected] = React.useState();
+  const [createClassroomTeacherSelected, setCreateClassroomTeacherSelected] = React.useState();
+  const [createClassroomStartDateSelected, setCreateClassroomStartDateSelected] = React.useState();
 
   const callGetCourses = async () => {
     const response = await apiHelper().get("/courses");
@@ -76,12 +182,29 @@ function Tables() {
       }
     });
     callGetCourses();
-  }
+  };
 
   const callDeleteCourse = async (courseId) => {
     await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
     callGetCourses();
-  }
+  };
+
+  const callGetSubjects = async () => {
+    const response = await apiHelper().get(`/subjects`);
+    const subjects = response.data;
+    setSubjects(subjects);
+  };
+
+  const callGetTeachers = async () => {
+    const response = await apiHelper().get(`/teachers`);
+    const teachers = response.data;
+    setTeachers(teachers);
+  };
+
+  const callCreateClassroom = async (createClassroomData) => {
+    await apiHelper().post("/classrooms/create", createClassroomData);
+    callGetClassrooms();
+  };
 
   useEffect(() => {
     callGetCourses();
@@ -91,27 +214,45 @@ function Tables() {
     callGetClassrooms();
   }, []);
 
+  useEffect(() => {
+    callGetSubjects();
+  }, []);
+
+  useEffect(() => {
+    callGetTeachers();
+  }, []);
+
   const onCreateNewCourseClicked = () => {
-    // Handle later
     setShowCreateCoursePopup(true);
+    setLeft(subjects);
+    setRight([]);
   };
 
   const onCreateNewClassroomClicked = () => {
-    // Handle later
+    setShowCreateClassroomPopup(true);
   };
 
   const onFileSelected = (e) => {
     setCreateCourseImage(e.target.files[0]);
-  }
+  };
+
+  const onUpdateCourseFileSelected = (e) => {
+    setUpdateCourseImage(e.target.files[0]);
+  };
 
   const handleCloseCreateNewCoursePopup = () => {
     setShowCreateCoursePopup(false);
     setCreateCourseImage(null);
+    handleAllLeft();
+  };
+
+  const handleCloseCreateNewClassroomPopup = () => {
+    setShowCreateClassroomPopup(false);
   };
 
   const handleCloseEditCoursePopup = () => {
     setSelectedCourse(null);
-    setCreateCourseImage(null);
+    setUpdateCourseImage(null);
   };
 
   const handleCreateNewCourse = (event) => {
@@ -122,14 +263,35 @@ function Tables() {
       trainingTime: data.get("trainingTime"),
       tuition: data.get("tuition"),
       desc: data.get("description"),
-      image: createCourseImage
-    }
+      image: createCourseImage,
+      subjectIdList: right.map((subject) => {
+        return subject.id;
+      })
+    };
     console.log("DATA::");
     console.log(createCourseData);
 
     handleCloseCreateNewCoursePopup();
     callCreateCourse(createCourseData);
-  }
+  };
+
+  const handleCreateNewClassroom = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const createClassroomData = {
+      courseId: createClassroomCourseSelected.id,
+      name: data.get("classroomName"),
+      maxStudent: data.get("maxStudent"),
+      minStudent: data.get("minStudent"),
+      startDate: createClassroomStartDateSelected,
+      teacherId: createClassroomTeacherSelected.id
+    };
+    console.log("DATA::");
+    console.log(createClassroomData);
+
+    handleCloseCreateNewClassroomPopup();
+    callCreateClassroom(createClassroomData);
+  };
 
   const handleEditCourse = (event) => {
     event.preventDefault();
@@ -140,18 +302,14 @@ function Tables() {
       trainingTime: data.get("trainingTime"),
       tuition: data.get("tuition"),
       desc: data.get("description"),
-      image: null
-    }
+      image: updateCourseImage ? updateCourseImage : null
+    };
     console.log("DATA::");
     console.log(editCourseData);
 
     handleCloseEditCoursePopup();
     callEditCourse(editCourseData);
-  }
-
-  const handleDeleteCourse = (courseId) => {
-
-  }
+  };
 
   return (
     <DashboardLayout>
@@ -191,6 +349,10 @@ function Tables() {
                         onClick={() => {
                           // Handle edit course
                           setSelectedCourse(course);
+                          setLeft(filterObjectsNotInListByProperty(subjects, course.subjects.map((value) => {
+                            return value.id;
+                          })));
+                          setRight(course.subjects);
                         }}
                         marginRight={1}
                         component="a"
@@ -327,6 +489,54 @@ function Tables() {
               <Typography>Description</Typography>
               <TextField id="description" name="description" fullWidth />
             </Box>
+            <Grid container spacing={2} justifyContent="center" alignItems="center">
+              <Grid item>{customList(left)}</Grid>
+              <Grid item>
+                <Grid container direction="column" alignItems="center">
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleAllRight}
+                    disabled={left.length === 0}
+                    aria-label="move all right"
+                  >
+                    ≫
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleCheckedRight}
+                    disabled={leftChecked.length === 0}
+                    aria-label="move selected right"
+                  >
+                    &gt;
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleCheckedLeft}
+                    disabled={rightChecked.length === 0}
+                    aria-label="move selected left"
+                  >
+                    &lt;
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleAllLeft}
+                    disabled={right.length === 0}
+                    aria-label="move all left"
+                  >
+                    ≪
+                  </Button>
+                </Grid>
+              </Grid>
+              <Grid item>{customList(right)}</Grid>
+            </Grid>
             <DialogActions>
               <Button onClick={handleCloseCreateNewCoursePopup}>Cancel</Button>
               <Button type="submit">Create</Button>
@@ -349,7 +559,7 @@ function Tables() {
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
                 Upload file
-                <VisuallyHiddenInput type="file" onChange={(e) => { onFileSelected(e) }} />
+                <VisuallyHiddenInput type="file" onChange={(e) => { onUpdateCourseFileSelected(e) }} />
               </Button>
             </Box>
             {
@@ -357,7 +567,7 @@ function Tables() {
                 component="img"
                 alt="green iguana"
                 height={200}
-                image={selectedCourse.thumbnail}
+                image={updateCourseImage ? URL.createObjectURL(updateCourseImage) : selectedCourse.thumbnail}
               /> : <></>
             }
             <Box mx={2} my={1}>
@@ -380,9 +590,130 @@ function Tables() {
               <Typography>Description</Typography>
               <TextField id="description" name="description" fullWidth defaultValue={selectedCourse.desc} />
             </Box>
+            <Grid container spacing={2} justifyContent="center" alignItems="center">
+              <Grid item>{customList(left)}</Grid>
+              <Grid item>
+                <Grid container direction="column" alignItems="center">
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleAllRight}
+                    disabled={left.length === 0}
+                    aria-label="move all right"
+                  >
+                    ≫
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleCheckedRight}
+                    disabled={leftChecked.length === 0}
+                    aria-label="move selected right"
+                  >
+                    &gt;
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleCheckedLeft}
+                    disabled={rightChecked.length === 0}
+                    aria-label="move selected left"
+                  >
+                    &lt;
+                  </Button>
+                  <Button
+                    sx={{ my: 0.5 }}
+                    variant="outlined"
+                    size="small"
+                    onClick={handleAllLeft}
+                    disabled={right.length === 0}
+                    aria-label="move all left"
+                  >
+                    ≪
+                  </Button>
+                </Grid>
+              </Grid>
+              <Grid item>{customList(right)}</Grid>
+            </Grid>
             <DialogActions>
               <Button onClick={handleCloseEditCoursePopup}>Cancel</Button>
               <Button type="submit">Edit</Button>
+            </DialogActions>
+          </Box>
+        </Dialog> : <></>
+      }
+
+      {
+        // Create new classroom dialog
+        showCreateClassroomPopup ? <Dialog
+          fullWidth
+          open={showCreateClassroomPopup}
+          // TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseCreateNewClassroomPopup}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{"Create new clasroom"}</DialogTitle>
+          <Box component="form" onSubmit={handleCreateNewClassroom}>
+            <Box mx={2} my={1}>
+              <Typography>Course</Typography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  setCreateClassroomCourseSelected(newValue);
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={courses}
+                sx={{ width: 300 }}
+                getOptionLabel={option => option.name}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Teacher</Typography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  setCreateClassroomTeacherSelected(newValue);
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={teachers}
+                sx={{ width: 300 }}
+                getOptionLabel={option => option.fullName}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Classroom name</Typography>
+              <TextField id="classroomName" name="classroomName" fullWidth />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Max student</Typography>
+              <TextField id="maxStudent" name="maxStudent" fullWidth />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Min student</Typography>
+              <TextField id="minStudent" name="minStudent" fullWidth />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Start date</Typography>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker
+                    format="DD/MM/YYYY"
+                    onAccept={(newDate) => {
+                      setCreateClassroomStartDateSelected(dayjs(newDate).format("DD/MM/YYYY"));
+                    }}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+            </Box>
+            <DialogActions>
+              <Button onClick={handleCloseCreateNewClassroomPopup}>Cancel</Button>
+              <Button type="submit">Create</Button>
             </DialogActions>
           </Box>
         </Dialog> : <></>
