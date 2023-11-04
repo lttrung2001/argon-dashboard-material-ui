@@ -35,7 +35,7 @@ Coded by www.creative-tim.com
 
 // Argon Dashboard 2 MUI layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
+import CoursesTable from "layouts/courses";
 import Billing from "layouts/billing";
 import VirtualReality from "layouts/virtual-reality";
 import RTL from "layouts/rtl";
@@ -45,6 +45,7 @@ import SignUp from "layouts/authentication/sign-up";
 
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
+import TeachersTable from "layouts/teachers";
 
 const routes = [
   {
@@ -57,13 +58,23 @@ const routes = [
   },
   {
     type: "route",
-    name: "Tables",
-    key: "tables",
-    route: "/tables",
+    name: "Courses",
+    key: "courses",
+    route: "/courses",
     icon: (
       <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
     ),
-    component: <Tables />,
+    component: <CoursesTable />,
+  },
+  {
+    type: "route",
+    name: "Teachers",
+    key: "teachers",
+    route: "/teachers",
+    icon: (
+      <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+    ),
+    component: <TeachersTable />,
   },
   {
     type: "route",

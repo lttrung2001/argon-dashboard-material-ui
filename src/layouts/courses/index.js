@@ -27,11 +27,11 @@ import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 
 // Data
-import coursesTableData from "layouts/tables/data/coursesTableData";
-import classroomsTableData from "layouts/tables/data/classroomsTableData";
+import coursesTableData from "layouts/courses/data/coursesTableData";
+import classroomsTableData from "layouts/courses/data/classroomsTableData";
 import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/Axios";
-import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "components/UploadFileButton";
@@ -43,7 +43,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 
-function Tables() {
+function CoursesTable() {
   //////////////////////////////////////// BEGIN TRANSFER LIST ////////////////////////////////////////
   function filterObjectsNotInListByProperty(arrOfObjects, listOfIds) {
     return arrOfObjects.filter(obj => !listOfIds.includes(obj.id));
@@ -141,69 +141,131 @@ function Tables() {
 
   const { columns } = coursesTableData;
   const { columns: prCols } = classroomsTableData;
+
+  const [error, setError] = React.useState();
+
   const [courses, setCourses] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
   const [subjects, setSubjects] = React.useState([]);
   const [teachers, setTeachers] = React.useState([]);
+
   const [createCourseImage, setCreateCourseImage] = React.useState();
   const [updateCourseImage, setUpdateCourseImage] = React.useState();
+
   const [showCreateCoursePopup, setShowCreateCoursePopup] = React.useState(false);
   const [showCreateClassroomPopup, setShowCreateClassroomPopup] = React.useState(false);
+
   const [selectedCourse, setSelectedCourse] = React.useState();
+  const [selectedClassroom, setSelectedClassroom] = React.useState();
+
   const [createClassroomCourseSelected, setCreateClassroomCourseSelected] = React.useState();
   const [createClassroomTeacherSelected, setCreateClassroomTeacherSelected] = React.useState();
   const [createClassroomStartDateSelected, setCreateClassroomStartDateSelected] = React.useState();
 
+  const [updateClassroomCourseSelected, setUpdateClassroomCourseSelected] = React.useState();
+  const [updateClassroomTeacherSelected, setUpdateClassroomTeacherSelected] = React.useState();
+  const [updateClassroomStartDateSelected, setUpdateClassroomStartDateSelected] = React.useState();
+
   const callGetCourses = async () => {
-    const response = await apiHelper().get("/courses");
-    const courses = response.data;
-    setCourses(courses);
+    try {
+      const response = await apiHelper().get("/courses");
+      const courses = response.data;
+      setCourses(courses);
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callGetClassrooms = async () => {
-    const response = await apiHelper().get("/classrooms");
-    const classrooms = response.data;
-    setClassrooms(classrooms);
+    try {
+      const response = await apiHelper().get("/classrooms");
+      const classrooms = response.data;
+      setClassrooms(classrooms);
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callCreateCourse = async (createCourseData) => {
-    await apiHelper().post("/courses/create", createCourseData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    });
-    callGetCourses();
+    try {
+      await apiHelper().post("/courses/create", createCourseData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      callGetCourses();
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callEditCourse = async (editCourseData) => {
-    await apiHelper().put("/courses/update", editCourseData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    });
-    callGetCourses();
+    try {
+      await apiHelper().put("/courses/update", editCourseData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      callGetCourses();
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callDeleteCourse = async (courseId) => {
-    await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
-    callGetCourses();
+    try {
+      await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
+      callGetCourses();
+    } catch (e) {
+
+    }
   };
 
   const callGetSubjects = async () => {
-    const response = await apiHelper().get(`/subjects`);
-    const subjects = response.data;
-    setSubjects(subjects);
+    try {
+      const response = await apiHelper().get(`/subjects`);
+      const subjects = response.data;
+      setSubjects(subjects);
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callGetTeachers = async () => {
-    const response = await apiHelper().get(`/teachers`);
-    const teachers = response.data;
-    setTeachers(teachers);
+    try {
+      const response = await apiHelper().get(`/teachers`);
+      const teachers = response.data;
+      setTeachers(teachers);
+    } catch (e) {
+      setError(e);
+    }
   };
 
   const callCreateClassroom = async (createClassroomData) => {
-    await apiHelper().post("/classrooms/create", createClassroomData);
-    callGetClassrooms();
+    try {
+      await apiHelper().post("/classrooms/create", createClassroomData);
+      callGetClassrooms();
+    } catch (e) {
+      setError(e);
+    }
+  };
+
+  const callUpdateClassroom = async (updateClassroomData) => {
+    try {
+      await apiHelper().put("/classrooms/update", updateClassroomData);
+      callGetClassrooms();
+    } catch (e) {
+      setError(e);
+    }
+  };
+
+  const callDeleteClassroom = async (classroomId) => {
+    try {
+      await apiHelper().delete(`/classrooms/delete?classroomId=${classroomId}`);
+      callGetClassrooms();
+    } catch (e) {
+      setError(e);
+    }
   };
 
   useEffect(() => {
@@ -255,6 +317,10 @@ function Tables() {
     setUpdateCourseImage(null);
   };
 
+  const handleCloseUpdateClassroomPopup = () => {
+    setSelectedClassroom(null);
+  };
+
   const handleCreateNewCourse = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -302,13 +368,39 @@ function Tables() {
       trainingTime: data.get("trainingTime"),
       tuition: data.get("tuition"),
       desc: data.get("description"),
-      image: updateCourseImage ? updateCourseImage : null
+      image: updateCourseImage ? updateCourseImage : null,
+      subjectIdList: right.map((subject) => {
+        return subject.id;
+      })
     };
     console.log("DATA::");
     console.log(editCourseData);
 
     handleCloseEditCoursePopup();
     callEditCourse(editCourseData);
+  };
+
+  const handleUpdateClassroom = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const updateClassroomData = {
+      classroomId: selectedClassroom.id,
+      classroomName: data.get("classroomName"),
+      maxStudent: data.get("maxStudent"),
+      minStudent: data.get("minStudent"),
+      startDate: updateClassroomStartDateSelected,
+      courseId: updateClassroomCourseSelected.id,
+      teacherId: updateClassroomTeacherSelected.id
+    };
+    console.log("DATA::");
+    console.log(updateClassroomData);
+
+    handleCloseUpdateClassroomPopup();
+    callUpdateClassroom(updateClassroomData);
+  };
+
+  const handleCloseErrorDialog = () => {
+    setError(null);
   };
 
   return (
@@ -418,6 +510,10 @@ function Tables() {
                       <ArgonTypography
                         onClick={() => {
                           // Handle edit classroom
+                          setSelectedClassroom(classroom);
+                          setUpdateClassroomCourseSelected(classroom.course);
+                          setUpdateClassroomTeacherSelected(classroom.teacher);
+                          setUpdateClassroomStartDateSelected(classroom.startDate);
                         }}
                         marginRight={1}
                         component="a"
@@ -431,6 +527,7 @@ function Tables() {
                       <ArgonTypography
                         onClick={() => {
                           // Handle delete classroom
+                          callDeleteClassroom(classroom.id);
                         }}
                         component="a"
                         href="#"
@@ -718,9 +815,108 @@ function Tables() {
           </Box>
         </Dialog> : <></>
       }
+      {
+        // Update classroom dialog
+        selectedClassroom ? <Dialog
+          fullWidth
+          open={selectedClassroom}
+          // TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseUpdateClassroomPopup}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{"Update clasroom"}</DialogTitle>
+          <Box component="form" onSubmit={handleUpdateClassroom}>
+            <Box mx={2} my={1}>
+              <Typography>Course</Typography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  setUpdateClassroomCourseSelected(newValue);
+                }}
+                defaultValue={selectedClassroom.course}
+                disablePortal
+                id="combo-box-demo"
+                options={courses}
+                sx={{ width: 300 }}
+                getOptionLabel={option => option.name}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Teacher</Typography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  setUpdateClassroomTeacherSelected(newValue);
+                }}
+                defaultValue={selectedClassroom.teacher}
+                disablePortal
+                id="combo-box-demo"
+                options={teachers}
+                sx={{ width: 300 }}
+                getOptionLabel={option => option.fullName}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Classroom name</Typography>
+              <TextField id="classroomName" name="classroomName" fullWidth defaultValue={selectedClassroom.name} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Max student</Typography>
+              <TextField id="maxStudent" name="maxStudent" fullWidth defaultValue={selectedClassroom.maxStudent} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Min student</Typography>
+              <TextField id="minStudent" name="minStudent" fullWidth defaultValue={selectedClassroom.minStudent} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Start date</Typography>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker
+                    format="DD/MM/YYYY"
+                    onAccept={(newDate) => {
+                      setUpdateClassroomStartDateSelected(dayjs(newDate).format("DD/MM/YYYY"));
+                    }}
+                    defaultValue={dayjs(selectedClassroom.startDate)}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+            </Box>
+            <DialogActions>
+              <Button onClick={handleCloseUpdateClassroomPopup}>Cancel</Button>
+              <Button type="submit">Update</Button>
+            </DialogActions>
+          </Box>
+        </Dialog> : <></>
+      }
+
+      {
+        error ? <Dialog
+          open={error}
+          onClose={handleCloseErrorDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            The system was interrupted, please reload the website
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseErrorDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+
       <Footer />
     </DashboardLayout>
   );
 }
 
-export default Tables;
+export default CoursesTable;

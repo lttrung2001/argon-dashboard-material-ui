@@ -26,6 +26,7 @@ import ArgonBox from "components/ArgonBox";
 import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import ArgonButton from "components/ArgonButton";
+import apiHelper, { ACCESS_TOKEN } from "../../../utils/Axios";
 
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
@@ -39,6 +40,26 @@ function Illustration() {
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
+  const callLogin = async (loginData) => {
+    const response = await apiHelper().post("/auth/login", loginData);
+    const token = response.data.token;
+    localStorage.setItem(ACCESS_TOKEN, token);
+  };
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const loginData = {
+      username: data.get("username"),
+      password: data.get("password"),
+      isTeacher: true
+    };
+    console.log("DATA::");
+    console.log(loginData);
+
+    callLogin(loginData);
+  };
+
   return (
     <IllustrationLayout
       title="Sign In"
@@ -50,12 +71,12 @@ function Illustration() {
           "The more effortless the writing looks, the more effort the writer actually put into the process.",
       }}
     >
-      <ArgonBox component="form" role="form">
+      <ArgonBox component="form" role="form" onSubmit={handleLogin}>
         <ArgonBox mb={2}>
-          <ArgonInput type="email" placeholder="Email" size="large" />
+          <ArgonInput name="username" placeholder="Username" size="large" />
         </ArgonBox>
         <ArgonBox mb={2}>
-          <ArgonInput type="password" placeholder="Password" size="large" />
+          <ArgonInput name="password" type="password" placeholder="Password" size="large" />
         </ArgonBox>
         <ArgonBox display="flex" alignItems="center">
           <Switch checked={rememberMe} onChange={handleSetRememberMe} />
@@ -69,7 +90,7 @@ function Illustration() {
           </ArgonTypography>
         </ArgonBox>
         <ArgonBox mt={4} mb={1}>
-          <ArgonButton color="info" size="large" fullWidth>
+          <ArgonButton color="info" size="large" fullWidth type="submit">
             Sign In
           </ArgonButton>
         </ArgonBox>
