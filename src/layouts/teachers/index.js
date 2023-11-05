@@ -180,6 +180,19 @@ function TeachersTable() {
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Teachers table</ArgonTypography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  if (newValue) {
+                    setSelectedTeacher(newValue);
+                  }
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={teachers}
+                sx={{ width: 300 }}
+                getOptionLabel={option => `${option.id} | ${option.fullName}`}
+                renderInput={(params) => <TextField {...params} />}
+              />
               <Button onClick={() => {
                 setShowCreateTeacherDialog(true);
               }}>Create</Button>

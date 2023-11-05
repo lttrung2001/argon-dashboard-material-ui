@@ -196,6 +196,8 @@ function CoursesTable() {
       callGetCourses();
     } catch (e) {
       setError(e);
+    } finally {
+      handleCloseCreateNewCoursePopup();
     }
   };
 
@@ -209,6 +211,8 @@ function CoursesTable() {
       callGetCourses();
     } catch (e) {
       setError(e);
+    } finally {
+      setShowCreateCoursePopup(false);
     }
   };
 
@@ -217,7 +221,9 @@ function CoursesTable() {
       await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
       callGetCourses();
     } catch (e) {
-
+      setError(e);
+    } finally {
+      handleCloseEditCoursePopup();
     }
   };
 
@@ -247,6 +253,8 @@ function CoursesTable() {
       callGetClassrooms();
     } catch (e) {
       setError(e);
+    } finally {
+      handleCloseCreateNewClassroomPopup();
     }
   };
 
@@ -256,6 +264,8 @@ function CoursesTable() {
       callGetClassrooms();
     } catch (e) {
       setError(e);
+    } finally {
+      setSelectedClassroom(null);
     }
   };
 
@@ -265,6 +275,8 @@ function CoursesTable() {
       callGetClassrooms();
     } catch (e) {
       setError(e);
+    } finally {
+      handleCloseUpdateClassroomPopup();
     }
   };
 
@@ -302,6 +314,13 @@ function CoursesTable() {
     setUpdateCourseImage(e.target.files[0]);
   };
 
+  const onCourseSelected = (course) => {
+    setLeft(filterObjectsNotInListByProperty(subjects, course.subjects.map((value) => {
+      return value.id;
+    })));
+    setRight(course.subjects);
+  };
+
   const handleCloseCreateNewCoursePopup = () => {
     setShowCreateCoursePopup(false);
     setCreateCourseImage(null);
@@ -337,7 +356,6 @@ function CoursesTable() {
     console.log("DATA::");
     console.log(createCourseData);
 
-    handleCloseCreateNewCoursePopup();
     callCreateCourse(createCourseData);
   };
 
@@ -355,7 +373,6 @@ function CoursesTable() {
     console.log("DATA::");
     console.log(createClassroomData);
 
-    handleCloseCreateNewClassroomPopup();
     callCreateClassroom(createClassroomData);
   };
 
@@ -376,7 +393,6 @@ function CoursesTable() {
     console.log("DATA::");
     console.log(editCourseData);
 
-    handleCloseEditCoursePopup();
     callEditCourse(editCourseData);
   };
 
@@ -395,8 +411,15 @@ function CoursesTable() {
     console.log("DATA::");
     console.log(updateClassroomData);
 
-    handleCloseUpdateClassroomPopup();
     callUpdateClassroom(updateClassroomData);
+  };
+
+  const handleDeleteClassroom = (event) => {
+    callDeleteClassroom(selectedClassroom.id)
+  }
+
+  const handleDeleteCourse = () => {
+    callDeleteCourse(selectedCourse.id);
   };
 
   const handleCloseErrorDialog = () => {
@@ -411,6 +434,20 @@ function CoursesTable() {
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Courses table</ArgonTypography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  if (newValue) {
+                    setSelectedCourse(newValue);
+                    onCourseSelected(newValue);
+                  }
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={courses}
+                sx={{ width: 300 }}
+                getOptionLabel={option => `${option.id} | ${option.name}`}
+                renderInput={(params) => <TextField {...params} />}
+              />
               <Button onClick={onCreateNewCourseClicked}>Create</Button>
             </ArgonBox>
             <ArgonBox
@@ -441,10 +478,7 @@ function CoursesTable() {
                         onClick={() => {
                           // Handle edit course
                           setSelectedCourse(course);
-                          setLeft(filterObjectsNotInListByProperty(subjects, course.subjects.map((value) => {
-                            return value.id;
-                          })));
-                          setRight(course.subjects);
+                          onCourseSelected(course);
                         }}
                         marginRight={1}
                         component="a"
@@ -479,6 +513,19 @@ function CoursesTable() {
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Classrooms table</ArgonTypography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  if (newValue) {
+                    setSelectedClassroom(newValue);
+                  }
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={classrooms}
+                sx={{ width: 300 }}
+                getOptionLabel={option => `${option.id} | ${option.name}`}
+                renderInput={(params) => <TextField {...params} />}
+              />
               <Button onClick={onCreateNewClassroomClicked}>Create</Button>
             </ArgonBox>
             <ArgonBox
@@ -496,7 +543,7 @@ function CoursesTable() {
                   name: [classroom.course.thumbnail, classroom.name],
                   startDate: (
                     <ArgonTypography variant="button" color="text" fontWeight="medium">
-                      {classroom.startDate}
+                      {dayjs(classroom.startDate).format("DD/MM/YYYY")}
                     </ArgonTypography>
                   ),
                   status: (
@@ -513,7 +560,7 @@ function CoursesTable() {
                           setSelectedClassroom(classroom);
                           setUpdateClassroomCourseSelected(classroom.course);
                           setUpdateClassroomTeacherSelected(classroom.teacher);
-                          setUpdateClassroomStartDateSelected(classroom.startDate);
+                          setUpdateClassroomStartDateSelected(dayjs(classroom.startDate).format("DD/MM/YYYY"));
                         }}
                         marginRight={1}
                         component="a"
@@ -642,7 +689,7 @@ function CoursesTable() {
         </Dialog> : <></>
       }
       {
-        // Create new course dialog
+        // Update course dialog
         selectedCourse ? <Dialog
           fullWidth
           open={selectedCourse}
@@ -736,6 +783,7 @@ function CoursesTable() {
               <Grid item>{customList(right)}</Grid>
             </Grid>
             <DialogActions>
+              <Button onClick={handleDeleteCourse}>Delete</Button>
               <Button onClick={handleCloseEditCoursePopup}>Cancel</Button>
               <Button type="submit">Edit</Button>
             </DialogActions>
@@ -765,7 +813,7 @@ function CoursesTable() {
                 id="combo-box-demo"
                 options={courses}
                 sx={{ width: 300 }}
-                getOptionLabel={option => option.name}
+                getOptionLabel={option => `${option.id} | ${option.name}`}
                 renderInput={(params) => <TextField {...params} />}
               />
             </Box>
@@ -779,7 +827,7 @@ function CoursesTable() {
                 id="combo-box-demo"
                 options={teachers}
                 sx={{ width: 300 }}
-                getOptionLabel={option => option.fullName}
+                getOptionLabel={option => `${option.id} | ${option.fullName}`}
                 renderInput={(params) => <TextField {...params} />}
               />
             </Box>
@@ -838,7 +886,7 @@ function CoursesTable() {
                 id="combo-box-demo"
                 options={courses}
                 sx={{ width: 300 }}
-                getOptionLabel={option => option.name}
+                getOptionLabel={option => `${option.id} | ${option.name}`}
                 renderInput={(params) => <TextField {...params} />}
               />
             </Box>
@@ -853,7 +901,7 @@ function CoursesTable() {
                 id="combo-box-demo"
                 options={teachers}
                 sx={{ width: 300 }}
-                getOptionLabel={option => option.fullName}
+                getOptionLabel={option => `${option.id} | ${option.fullName}`}
                 renderInput={(params) => <TextField {...params} />}
               />
             </Box>
@@ -884,6 +932,7 @@ function CoursesTable() {
               </LocalizationProvider>
             </Box>
             <DialogActions>
+              <Button onClick={handleDeleteClassroom}>Delete</Button>
               <Button onClick={handleCloseUpdateClassroomPopup}>Cancel</Button>
               <Button type="submit">Update</Button>
             </DialogActions>

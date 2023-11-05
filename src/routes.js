@@ -46,6 +46,9 @@ import SignUp from "layouts/authentication/sign-up";
 // Argon Dashboard 2 MUI components
 import ArgonBox from "components/ArgonBox";
 import TeachersTable from "layouts/teachers";
+import RoomsTable from "layouts/rooms";
+import SubjectsTable from "layouts/subjects";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const routes = [
   {
@@ -75,6 +78,26 @@ const routes = [
       <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
     ),
     component: <TeachersTable />,
+  },
+  {
+    type: "route",
+    name: "Rooms",
+    key: "rooms",
+    route: "/rooms",
+    icon: (
+      <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-building" />
+    ),
+    component: <RoomsTable />,
+  },
+  {
+    type: "route",
+    name: "Subjects",
+    key: "subjects",
+    route: "/subjects",
+    icon: (
+      <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+    ),
+    component: <SubjectsTable />,
   },
   {
     type: "route",
