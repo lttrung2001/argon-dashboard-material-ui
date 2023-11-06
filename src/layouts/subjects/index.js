@@ -43,7 +43,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { DataGrid, GridDeleteIcon } from "@mui/x-data-grid";
+import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
+import InfoIcon from '@mui/icons-material/Info';
 
 function SubjectsTable() {
   const [error, setError] = React.useState();
@@ -67,7 +68,11 @@ function SubjectsTable() {
 
   const callCreateSubject = async (data) => {
     try {
-      await apiHelper().post("/subjects/create", data);
+      await apiHelper().post("/subjects/create", data, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       callGetSubjects();
     } catch (e) {
       setError(e);
@@ -127,7 +132,8 @@ function SubjectsTable() {
     const data = new FormData(event.currentTarget);
     const requestData = {
       name: data.get("name"),
-    }
+      files: files
+    };
     console.log("DATA::");
     console.log(requestData);
 
@@ -174,23 +180,6 @@ function SubjectsTable() {
     page: 0,
   });
   ///////////////// END DEMO TABLE
-
-  ///////////////// BEGIN HANDLE DOCUMENTS
-  const [checked, setChecked] = React.useState([]);
-
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
-  ///////////////// END HANDLE DOCUMENTS
 
   return (
     <DashboardLayout>
@@ -295,18 +284,7 @@ function SubjectsTable() {
                         </IconButton>
                       }
                     >
-                      <ListItemButton role={undefined} onClick={handleToggle(file)} dense>
-                        <ListItemIcon>
-                          <Checkbox
-                            edge="start"
-                            checked={checked.indexOf(file) !== -1}
-                            tabIndex={-1}
-                            disableRipple
-                            inputProps={{ 'aria-labelledby': labelId }}
-                          />
-                        </ListItemIcon>
-                        <ListItemText id={labelId} primary={`${file.name}`} />
-                      </ListItemButton>
+                      <ListItemText id={labelId} primary={`${file.name}`} />
                     </ListItem>
                   );
                 })}
@@ -335,6 +313,27 @@ function SubjectsTable() {
         >
           <DialogTitle>{"Update subject information"}</DialogTitle>
           <Box component="form" onSubmit={handleUpdateSubject}>
+          <Box mx={2}>
+              <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                {Array.from(selectedSubject.documents).map((document) => {
+                  const labelId = `checkbox-list-label-${document.name}`;
+                  return (
+                    <ListItem
+                      key={document.name}
+                      secondaryAction={
+                        <IconButton edge="end" aria-label="deletes" onClick={
+                          () => window.open(document.url, "_blank")
+                        }>
+                          <InfoIcon />
+                        </IconButton>
+                      }
+                    >
+                      <ListItemText id={labelId} primary={`${document.name}`} />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
             <Box mx={2} my={1}>
               <Typography>Subject name</Typography>
               <TextField id="name" name="name" fullWidth defaultValue={selectedSubject.name} />

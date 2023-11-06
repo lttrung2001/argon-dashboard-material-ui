@@ -873,7 +873,7 @@ function CoursesTable() {
           onClose={handleCloseUpdateClassroomPopup}
           aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle>{"Update clasroom"}</DialogTitle>
+          <DialogTitle>{"Update classroom"}</DialogTitle>
           <Box component="form" onSubmit={handleUpdateClassroom}>
             <Box mx={2} my={1}>
               <Typography>Course</Typography>

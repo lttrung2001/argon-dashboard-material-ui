@@ -57,7 +57,10 @@ function TeachersTable() {
   const callGetTeachers = async () => {
     try {
       const response = await apiHelper().get(`/teachers`);
-      const teachers = response.data;
+      const teachers = response.data.map((teacher) => {
+        teacher.dob = dayjs(teacher.dob).format("DD/MM/YYYY")
+        return teacher;
+      });
       setTeachers(teachers);
     } catch (e) {
       setError(e);

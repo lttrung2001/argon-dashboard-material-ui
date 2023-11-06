@@ -49,6 +49,7 @@ import TeachersTable from "layouts/teachers";
 import RoomsTable from "layouts/rooms";
 import SubjectsTable from "layouts/subjects";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ScoresTable from "layouts/scores";
 
 const routes = [
   {
@@ -98,6 +99,16 @@ const routes = [
       <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
     ),
     component: <SubjectsTable />,
+  },
+  {
+    type: "route",
+    name: "Scores",
+    key: "scores",
+    route: "/scores",
+    icon: (
+      <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+    ),
+    component: <ScoresTable />,
   },
   {
     type: "route",
