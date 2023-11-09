@@ -81,7 +81,11 @@ function SubjectsTable() {
 
   const callUpdateSubject = async (data) => {
     try {
-      await apiHelper().put("/subjects/update", data);
+      await apiHelper().put("/subjects/update", data, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       callGetSubjects();
     } catch (e) {
       setError(e);
@@ -110,6 +114,21 @@ function SubjectsTable() {
       if (!files.includes(item)) distinctFiles.push(item);
     });
     setFiles([...files, ...distinctFiles]);
+  };
+
+  const onFilesSelectedForUpdate = (e) => {
+    const subject = { ...selectedSubject };
+    Array.from(e.target.files).forEach((file) => {
+      const url = URL.createObjectURL(file)
+      const newFile = {
+        id: url,
+        name: file.name,
+        url: file,
+        isLocal: true
+      };
+      subject.documents.push(newFile);
+    });
+    setSelectedSubject(subject);
   };
 
   const handleSubjectClicked = (params) => {
@@ -143,10 +162,20 @@ function SubjectsTable() {
   const handleUpdateSubject = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const newFiles = selectedSubject.documents.filter((doc) => {
+      return doc.isLocal
+    });
+    const existedDocs = selectedSubject.documents.filter((doc) => {
+      return !doc.isLocal
+    });
     const requestData = {
       subjectId: selectedSubject.id,
-      name: data.get("name")
-    }
+      changedDocuments: JSON.stringify(existedDocs),
+      name: data.get("name"),
+      files: newFiles.map((item) => {
+        return item.url;
+      })
+    };
     console.log("DATA::");
     console.log(requestData);
 
@@ -163,6 +192,14 @@ function SubjectsTable() {
       if (item != file) filtered.push(item);
     });
     setFiles(filtered);
+  };
+
+  const handleRemoveDocument = (document) => {
+    const subject = { ...selectedSubject };
+    subject.documents = Array.from(subject.documents).filter((doc) => {
+      return doc.id != document.id;
+    });
+    setSelectedSubject(subject);
   };
 
   const handleCloseErrorDialog = () => {
@@ -313,19 +350,30 @@ function SubjectsTable() {
         >
           <DialogTitle>{"Update subject information"}</DialogTitle>
           <Box component="form" onSubmit={handleUpdateSubject}>
-          <Box mx={2}>
+            <Box mx={2}>
+              <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
+                Upload file
+                <VisuallyHiddenInput type="file" multiple onChange={(e) => { onFilesSelectedForUpdate(e) }} />
+              </Button>
+            </Box>
+            <Box mx={2}>
               <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {Array.from(selectedSubject.documents).map((document) => {
                   const labelId = `checkbox-list-label-${document.name}`;
                   return (
                     <ListItem
-                      key={document.name}
+                      key={document.id}
                       secondaryAction={
-                        <IconButton edge="end" aria-label="deletes" onClick={
-                          () => window.open(document.url, "_blank")
-                        }>
-                          <InfoIcon />
-                        </IconButton>
+                        <Box>
+                          {document.isLocal ? <></> : <IconButton edge="end" aria-label="opens" onClick={
+                            () => window.open(document.url, "_blank")
+                          }>
+                            <InfoIcon />
+                          </IconButton>}
+                          <IconButton edge="end" aria-label="deletes" onClick={() => handleRemoveDocument(document)}>
+                            <GridDeleteIcon />
+                          </IconButton>
+                        </Box>
                       }
                     >
                       <ListItemText id={labelId} primary={`${document.name}`} />
