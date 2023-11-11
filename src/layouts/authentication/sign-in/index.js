@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { useState } from "react";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Switch from "@mui/material/Switch";
@@ -30,6 +30,12 @@ import apiHelper, { ACCESS_TOKEN } from "../../../utils/Axios";
 
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
+import { DialogActions } from '@mui/material';
+import { Button } from '@mui/material';
+import { DialogContent } from '@mui/material';
+import { DialogContentText } from '@mui/material';
+import { DialogTitle } from '@mui/material';
+import { Dialog } from '@mui/material';
 
 // Image
 const bgImage =
@@ -37,13 +43,22 @@ const bgImage =
 
 function Illustration() {
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
+  const navigator = useNavigate();
+
   const callLogin = async (loginData) => {
+    try {
     const response = await apiHelper().post("/auth/login", loginData);
     const token = response.data.token;
     localStorage.setItem(ACCESS_TOKEN, token);
+    navigator("/");
+    navigator(0);
+    } catch(e) {
+      setError(e);
+    }
   };
 
   const handleLogin = (event) => {
@@ -58,6 +73,10 @@ function Illustration() {
     console.log(loginData);
 
     callLogin(loginData);
+  };
+
+  const handleCloseErrorDialog = () => {
+    setError(null);
   };
 
   return (
@@ -109,6 +128,28 @@ function Illustration() {
           </ArgonTypography>
         </ArgonBox>
       </ArgonBox>
+      {
+        error ? <Dialog
+          open={error}
+          onClose={handleCloseErrorDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            The system was interrupted, please reload the website
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseErrorDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
     </IllustrationLayout>
   );
 }

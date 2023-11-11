@@ -51,7 +51,9 @@ function StudentsTable() {
   const [error, setError] = React.useState();
   const [students, setStudents] = React.useState([]);
   const [showCreatePopup, setShowCreatePopup] = React.useState(false);
-  const [createDob, setCreateDob] = React.useState([]);
+  const [selectedStudent, setSelectedStudent] = React.useState();
+  const [createDob, setCreateDob] = React.useState();
+  const [updateDob, setUpdateDob] = React.useState();
 
   const callGetStudents = async () => {
     try {
@@ -61,7 +63,8 @@ function StudentsTable() {
     } catch (e) {
       setError(e);
     } finally {
-      setShowCreatePopup(false);
+      handleCloseCreatePopup();
+      handleCloseUpdatePopup();
     }
   };
 
@@ -74,12 +77,26 @@ function StudentsTable() {
     }
   };
 
+  const callUpdateStudent = async (data) => {
+    try {
+      await apiHelper().put("/students/update", data);
+      callGetStudents();
+    } catch (e) {
+      setError(e);
+    }
+  };
+
   useEffect(() => {
     callGetStudents();
   }, []);
 
   const handleCloseCreatePopup = () => {
     setShowCreatePopup(false);
+  };
+
+  const handleCloseUpdatePopup = () => {
+    setUpdateDob(null);
+    setSelectedStudent(null);
   };
 
   const handleCreateStudent = (event) => {
@@ -99,12 +116,32 @@ function StudentsTable() {
     callCreateStudent(requestData);
   };
 
+  const handleUpdateStudent = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const requestData = {
+      studentId: selectedStudent.id,
+      fullName: data.get("fullName"),
+      gender: data.get("gender"),
+      dob: updateDob,
+      address: data.get("address"),
+      phoneNumber: data.get("phoneNumber"),
+      email: data.get("email"),
+    };
+    console.log("DATA::");
+    console.log(requestData);
+
+    callUpdateStudent(requestData);
+  };
+
   const handleCloseErrorDialog = () => {
     setError(null);
   };
 
   const handleStudentClicked = (params) => {
-    const studentSelected = params.row;
+    const student = params.row;
+    setUpdateDob(dayjs(student.dob).format("DD/MM/YYYY"));
+    setSelectedStudent(student);
   };
 
   ///////////////// BEGIN DEMO TABLE
@@ -244,6 +281,70 @@ function StudentsTable() {
             <DialogActions>
               <Button onClick={handleCloseCreatePopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+            </DialogActions>
+          </Box>
+        </Dialog> : <></>
+      }
+      {
+        // Create new classroom dialog
+        selectedStudent ? <Dialog
+          fullWidth
+          open={selectedStudent}
+          // TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseUpdatePopup}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{"Create new clasroom"}</DialogTitle>
+          <Box component="form" onSubmit={handleUpdateStudent}>
+            <Box mx={2} my={1}>
+              <Typography>Fullname</Typography>
+              <TextField id="fullName" name="fullName" fullWidth defaultValue={selectedStudent.fullName} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Gender</Typography>
+            </Box>
+            <Box mx={3} my={1}>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="gender"
+                defaultValue={selectedStudent.gender}
+              >
+                <FormControlLabel value={true} control={<Radio />} label="Male" />
+                <FormControlLabel value={false} control={<Radio />} label="Female" />
+              </RadioGroup>
+            </Box>
+
+            <Box mx={2} my={1}>
+              <Typography>Day of birth</Typography>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker
+                    defaultValue={dayjs(selectedStudent.dob)}
+                    format="DD/MM/YYYY"
+                    onAccept={(newDate) => {
+                      setUpdateDob(dayjs(newDate).format("DD/MM/YYYY"));
+                    }}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Address</Typography>
+              <TextField id="address" name="address" fullWidth defaultValue={selectedStudent.address} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Phone number</Typography>
+              <TextField id="phoneNumber" name="phoneNumber" fullWidth defaultValue={selectedStudent.phoneNumber} />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>Email</Typography>
+              <TextField id="email" name="email" fullWidth defaultValue={selectedStudent.email} />
+            </Box>
+            <DialogActions>
+              <Button onClick={handleCloseUpdatePopup}>Cancel</Button>
+              <Button type="submit">Update</Button>
             </DialogActions>
           </Box>
         </Dialog> : <></>

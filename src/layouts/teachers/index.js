@@ -27,7 +27,7 @@ import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/Axios";
-import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "components/UploadFileButton";
@@ -45,6 +45,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid } from "@mui/x-data-grid";
 import { useDemoData } from '@mui/x-data-grid-generator';
+import RadioGroup from '@mui/material/RadioGroup';
 
 function TeachersTable() {
   const [error, setError] = React.useState();
@@ -162,7 +163,7 @@ function TeachersTable() {
   const teacherColumns = [
     { field: "id", headerName: "ID" },
     { field: "fullName", headerName: "Fullname", flex: 1 },
-    { field: "gender", headerName: "Gender" },
+    { field: "gender", headerName: "Gender", valueGetter: (params) => params.row?.gender ? "Male" : "Female" },
     { field: "dob", headerName: "DOB", flex: 1 },
     { field: "address", headerName: "Address", flex: 1 },
     { field: "phoneNumber", headerName: "Phone number", flex: 1 },
@@ -317,7 +318,17 @@ function TeachersTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Gender</Typography>
-              <TextField id="gender" name="gender" fullWidth defaultValue={selectedTeacher.gender} />
+            </Box>
+            <Box mx={3} my={1}>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="gender"
+                defaultValue={selectedTeacher.gender}
+              >
+                <FormControlLabel value={true} control={<Radio />} label="Male" />
+                <FormControlLabel value={false} control={<Radio />} label="Female" />
+              </RadioGroup>
             </Box>
             <Box mx={2} my={1}>
               <Typography>Date of birth</Typography>
