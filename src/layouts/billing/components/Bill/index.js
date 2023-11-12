@@ -56,26 +56,10 @@ function Bill({ name, company, email, vat, noGutter }) {
           <ArgonTypography variant="button" fontWeight="medium" textTransform="capitalize">
             {name}
           </ArgonTypography>
-
-          <ArgonBox
-            display="flex"
-            alignItems="center"
-            mt={{ xs: 2, sm: 0 }}
-            ml={{ xs: -1.5, sm: 0 }}
-          >
-            <ArgonBox mr={1}>
-              <ArgonButton variant="text" color="error">
-                <Icon>delete</Icon>&nbsp;Delete
-              </ArgonButton>
-            </ArgonBox>
-            <ArgonButton variant="text" color="dark">
-              <Icon>edit</Icon>&nbsp;Edit
-            </ArgonButton>
-          </ArgonBox>
         </ArgonBox>
         <ArgonBox mb={1} lineHeight={0}>
           <ArgonTypography variant="caption" color="text">
-            Company Name:&nbsp;&nbsp;&nbsp;
+            Classroom name:&nbsp;&nbsp;&nbsp;
             <ArgonTypography variant="caption" fontWeight="medium" textTransform="capitalize">
               {company}
             </ArgonTypography>
@@ -90,9 +74,9 @@ function Bill({ name, company, email, vat, noGutter }) {
           </ArgonTypography>
         </ArgonBox>
         <ArgonTypography variant="caption" color="text">
-          VAT Number:&nbsp;&nbsp;&nbsp;
+          Tuition:&nbsp;&nbsp;&nbsp;
           <ArgonTypography variant="caption" fontWeight="medium">
-            {vat}
+            {`${vat} VND`}
           </ArgonTypography>
         </ArgonTypography>
       </ArgonBox>
