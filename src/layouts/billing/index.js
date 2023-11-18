@@ -46,7 +46,7 @@ function Billing() {
       const billList = response.data;
       setBills(billList);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
 
     }

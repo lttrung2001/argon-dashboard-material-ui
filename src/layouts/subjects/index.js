@@ -59,7 +59,7 @@ function SubjectsTable() {
       const subjects = response.data;
       setSubjects(subjects);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseCreateSubjectPopup();
       handleCloseUpdateSubjectPopup();
@@ -75,7 +75,7 @@ function SubjectsTable() {
       });
       callGetSubjects();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -88,7 +88,7 @@ function SubjectsTable() {
       });
       callGetSubjects();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -98,7 +98,7 @@ function SubjectsTable() {
       setSelectedSubject(null);
       callGetSubjects();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 

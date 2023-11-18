@@ -61,7 +61,7 @@ function StudentsTable() {
       const students = response.data;
       setStudents(students);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseCreatePopup();
       handleCloseUpdatePopup();
@@ -73,7 +73,7 @@ function StudentsTable() {
       await apiHelper().post("/students/create", data);
       callGetStudents();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -82,7 +82,7 @@ function StudentsTable() {
       await apiHelper().put("/students/update", data);
       callGetStudents();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -213,7 +213,7 @@ function StudentsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

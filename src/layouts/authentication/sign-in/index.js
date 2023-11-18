@@ -26,7 +26,7 @@ import ArgonBox from "components/ArgonBox";
 import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import ArgonButton from "components/ArgonButton";
-import apiHelper, { ACCESS_TOKEN } from "../../../utils/Axios";
+import apiHelper, { ACCESS_TOKEN, apiHelperPublic } from "../../../utils/Axios";
 
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
@@ -51,13 +51,13 @@ function Illustration() {
 
   const callLogin = async (loginData) => {
     try {
-    const response = await apiHelper().post("/auth/login", loginData);
+    const response = await apiHelperPublic().post("/auth/login", loginData);
     const token = response.data.token;
     localStorage.setItem(ACCESS_TOKEN, token);
     navigator("/");
     navigator(0);
     } catch(e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 

@@ -57,7 +57,7 @@ function RoomsTable() {
       const rooms = response.data;
       setRooms(rooms);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseCreateRoomPopup();
       handleCloseUpdateRoomPopup();
@@ -69,7 +69,7 @@ function RoomsTable() {
       await apiHelper().post("/rooms/create", data);
       callGetRooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -78,7 +78,7 @@ function RoomsTable() {
       await apiHelper().put("/rooms/update", data);
       callGetRooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -88,7 +88,7 @@ function RoomsTable() {
       setSelectedRoom(null);
       callGetRooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -216,7 +216,7 @@ function RoomsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

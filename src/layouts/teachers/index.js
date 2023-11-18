@@ -64,7 +64,7 @@ function TeachersTable() {
       });
       setTeachers(teachers);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -73,7 +73,7 @@ function TeachersTable() {
       await apiHelper().post("/teachers/create", data);
       callGetTeachers();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -82,7 +82,7 @@ function TeachersTable() {
       await apiHelper().put("/teachers/update", data);
       callGetTeachers();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -92,7 +92,7 @@ function TeachersTable() {
       setSelectedTeacher(null);
       callGetTeachers();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -238,7 +238,7 @@ function TeachersTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

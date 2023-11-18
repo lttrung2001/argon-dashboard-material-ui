@@ -33,38 +33,40 @@ import ArgonTypography from "components/ArgonTypography";
 import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 
+import React, { useEffect, useState } from "react";
+import apiHelper from "../../../../utils/Axios";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
+import { DialogTitle } from '@mui/material';
+import { CloudUploadRounded } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "components/UploadFileButton";
+import ArgonBadge from "components/ArgonBadge";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+
 function ProfileInfoCard({ title, description, info, social, action }) {
+  const [profile, setProfile] = useState();
+  const [error, setError] = useState();
+
+  const callGetProfile = async () => {
+    try {
+      const response = await apiHelper().get("/teachers/profile");
+      const teacher = response.data;
+      setProfile(teacher);
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  }
+
+  useEffect(() => {
+    callGetProfile();
+  }, []);
+
   const labels = [];
   const values = [];
   const { socialMediaColors } = colors;
   const { size } = typography;
-
-  // Convert this form `objectKey` of the object key in to this `object key`
-  Object.keys(info).forEach((el) => {
-    if (el.match(/[A-Z\s]+/)) {
-      const uppercaseLetter = Array.from(el).find((i) => i.match(/[A-Z]+/));
-      const newElement = el.replace(uppercaseLetter, ` ${uppercaseLetter.toLowerCase()}`);
-
-      labels.push(newElement);
-    } else {
-      labels.push(el);
-    }
-  });
-
-  // Push the object values into the values array
-  Object.values(info).forEach((el) => values.push(el));
-
-  // Render the card info items
-  const renderItems = labels.map((label, key) => (
-    <ArgonBox key={label} display="flex" py={1} pr={2}>
-      <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
-        {label}: &nbsp;
-      </ArgonTypography>
-      <ArgonTypography variant="button" fontWeight="regular" color="text">
-        &nbsp;{values[key]}
-      </ArgonTypography>
-    </ArgonBox>
-  ));
 
   // Render the card social media icons
   const renderSocial = social.map(({ link, icon, color }) => (
@@ -106,7 +108,38 @@ function ProfileInfoCard({ title, description, info, social, action }) {
           <Divider />
         </ArgonBox>
         <ArgonBox>
-          {renderItems}
+          <ArgonBox key={"fullName"} display="flex" py={1} pr={2}>
+            <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
+              {"Full name"}: &nbsp;
+            </ArgonTypography>
+            <ArgonTypography variant="button" fontWeight="regular" color="text">
+              &nbsp;{profile ? profile.fullName : ""}
+            </ArgonTypography>
+          </ArgonBox>
+          <ArgonBox key={"dob"} display="flex" py={1} pr={2}>
+            <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
+              {"Day of birth"}: &nbsp;
+            </ArgonTypography>
+            <ArgonTypography variant="button" fontWeight="regular" color="text">
+              &nbsp;{profile ? dayjs(profile.dob).format("DD/MM/YYYY") : ""}
+            </ArgonTypography>
+          </ArgonBox>
+          <ArgonBox key={"phoneNumber"} display="flex" py={1} pr={2}>
+            <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
+              {"Phone number"}: &nbsp;
+            </ArgonTypography>
+            <ArgonTypography variant="button" fontWeight="regular" color="text">
+              &nbsp;{profile ? profile.phoneNumber : ""}
+            </ArgonTypography>
+          </ArgonBox>
+          <ArgonBox key={"address"} display="flex" py={1} pr={2}>
+            <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
+              {"Address"}: &nbsp;
+            </ArgonTypography>
+            <ArgonTypography variant="button" fontWeight="regular" color="text">
+              &nbsp;{profile ? profile.address : ""}
+            </ArgonTypography>
+          </ArgonBox>
           <ArgonBox display="flex" py={1} pr={2}>
             <ArgonTypography variant="button" fontWeight="bold" textTransform="capitalize">
               social: &nbsp;

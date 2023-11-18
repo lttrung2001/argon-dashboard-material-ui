@@ -172,7 +172,7 @@ function CoursesTable() {
       const courses = response.data;
       setCourses(courses);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -182,7 +182,7 @@ function CoursesTable() {
       const classrooms = response.data;
       setClassrooms(classrooms);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -195,7 +195,7 @@ function CoursesTable() {
       });
       callGetCourses();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseCreateNewCoursePopup();
     }
@@ -210,7 +210,7 @@ function CoursesTable() {
       });
       callGetCourses();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       setShowCreateCoursePopup(false);
     }
@@ -221,7 +221,7 @@ function CoursesTable() {
       await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
       callGetCourses();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseEditCoursePopup();
     }
@@ -233,7 +233,7 @@ function CoursesTable() {
       const subjects = response.data;
       setSubjects(subjects);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -243,7 +243,7 @@ function CoursesTable() {
       const teachers = response.data;
       setTeachers(teachers);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -252,7 +252,7 @@ function CoursesTable() {
       await apiHelper().post("/classrooms/create", createClassroomData);
       callGetClassrooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseCreateNewClassroomPopup();
     }
@@ -263,7 +263,7 @@ function CoursesTable() {
       await apiHelper().put("/classrooms/update", updateClassroomData);
       callGetClassrooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       setSelectedClassroom(null);
     }
@@ -274,7 +274,7 @@ function CoursesTable() {
       await apiHelper().delete(`/classrooms/delete?classroomId=${classroomId}`);
       callGetClassrooms();
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
       handleCloseUpdateClassroomPopup();
     }
@@ -952,7 +952,7 @@ function CoursesTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

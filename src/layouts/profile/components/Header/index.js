@@ -36,9 +36,24 @@ import breakpoints from "assets/theme/base/breakpoints";
 // Images
 import burceMars from "assets/images/bruce-mars.jpg";
 
+import React from "react";
+import apiHelper from "../../../../utils/Axios";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
+import { DialogTitle } from '@mui/material';
+import { CloudUploadRounded } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "components/UploadFileButton";
+import ArgonBadge from "components/ArgonBadge";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+
 function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
+  const [openChangePasswordDialog, setOpenChangePasswordDialog] = useState(false);
+  
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -61,6 +76,60 @@ function Header() {
   }, [tabsOrientation]);
 
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
+
+  const [profile, setProfile] = useState();
+  const [error, setError] = useState();
+  const navigator = useNavigate();
+
+  const callGetProfile = async () => {
+    try {
+      const response = await apiHelper().get("/teachers/profile");
+      const teacher = response.data;
+      setProfile(teacher);
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
+  const callChangePassword = async (requestData) => {
+    try {
+      await apiHelper().post("/auth/change-password", requestData);
+      setOpenChangePasswordDialog(false);
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    callGetProfile();
+  }, []);
+
+  const handleChangePassword = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const requestData = {
+      oldPassword: data.get("oldPassword"),
+      newPassword: data.get("newPassword")
+    };
+    console.log("DATA::");
+    console.log(requestData);
+
+    callChangePassword(requestData);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigator("/authentication/sign-in");
+    navigator(0);
+  };
+
+  const handleCloseChangePasswordDialog = () => {
+    setOpenChangePasswordDialog(false);
+  };
+
+  const handleCloseErrorDialog = () => {
+    setError(null);
+  };
 
   return (
     <ArgonBox position="relative">
@@ -86,45 +155,72 @@ function Header() {
           <Grid item>
             <ArgonBox height="100%" mt={0.5} lineHeight={1}>
               <ArgonTypography variant="h5" fontWeight="medium">
-                Alex Thompson
+                {`${profile ? profile.fullName : ""}`}
               </ArgonTypography>
               <ArgonTypography variant="button" color="text" fontWeight="medium">
-                CEO / Co-Founder
+                Teacher
               </ArgonTypography>
             </ArgonBox>
           </Grid>
           <Grid item xs={12} md={6} lg={4} sx={{ ml: "auto" }}>
             <AppBar position="static">
-              <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-                <Tab
-                  label="App"
-                  icon={
-                    <i className="ni ni-app" style={{ marginTop: "6px", marginRight: "8px" }} />
-                  }
-                />
-                <Tab
-                  label="Message"
-                  icon={
-                    <i
-                      className="ni ni-email-83"
-                      style={{ marginTop: "6px", marginRight: "8px" }}
-                    />
-                  }
-                />
-                <Tab
-                  label="Settings"
-                  icon={
-                    <i
-                      className="ni ni-settings-gear-65"
-                      style={{ marginTop: "6px", marginRight: "8px" }}
-                    />
-                  }
-                />
-              </Tabs>
+              <Box>
+                <Button onClick={() => setOpenChangePasswordDialog(true)}>Change password</Button>
+                <Button onClick={handleLogout}>Log out</Button>
+              </Box>
             </AppBar>
           </Grid>
         </Grid>
       </Card>
+      {
+        // Create room dialog
+        openChangePasswordDialog ? <Dialog
+          fullWidth
+          open={openChangePasswordDialog}
+          // TransitionComponent={Transition}
+          keepMounted
+          onClose={handleCloseChangePasswordDialog}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{"Change your password"}</DialogTitle>
+          <Box component="form" onSubmit={handleChangePassword}>
+            <Box mx={2} my={1}>
+              <Typography>Current password</Typography>
+              <TextField id="oldPassword" name="oldPassword" fullWidth />
+            </Box>
+            <Box mx={2} my={1}>
+              <Typography>New password</Typography>
+              <TextField id="newPassword" name="newPassword" fullWidth />
+            </Box>
+            <DialogActions>
+              <Button onClick={handleCloseChangePasswordDialog}>Cancel</Button>
+              <Button type="submit">Submit</Button>
+            </DialogActions>
+          </Box>
+        </Dialog> : <></>
+      }
+      {
+        error ? <Dialog
+          open={error}
+          onClose={handleCloseErrorDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            {error}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseErrorDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
     </ArgonBox>
   );
 }

@@ -57,7 +57,7 @@ function RegistrationsTable() {
       const classrooms = response.data;
       setClassrooms(classrooms);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
     }
   };
@@ -68,7 +68,7 @@ function RegistrationsTable() {
       const students = response.data;
       setStudents(students);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     } finally {
     }
   };

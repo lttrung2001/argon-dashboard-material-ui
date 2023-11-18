@@ -52,7 +52,37 @@ import team4 from "assets/images/team-4.jpg";
 const bgImage =
   "https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg";
 
+import React, { useEffect, useState } from "react";
+import apiHelper from "../../utils/Axios";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
+import { DialogTitle } from '@mui/material';
+import { CloudUploadRounded } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "components/UploadFileButton";
+import ArgonBadge from "components/ArgonBadge";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+
 function Overview() {
+
+  const [profile, setProfile] = useState();
+  const [error, setError] = useState();
+
+  const callGetProfile = async () => {
+    try {
+      const response = await apiHelper().get("/teachers/profile");
+      const teacher = response.data;
+      setProfile(teacher);
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  }
+
+  useEffect(() => {
+    callGetProfile();
+  }, []);
+
   return (
     <DashboardLayout
       sx={{
@@ -73,7 +103,7 @@ function Overview() {
           <Grid item xs={12} md={6} xl={4}>
             <ProfileInfoCard
               title="profile information"
-              description="Hi, I'm Alec Thompson, Decisions: If you can't decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality)."
+              description={`Hi, I'm ${profile ? profile.fullName : ""}, Decisions: If you can't decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality).`}
               info={{
                 fullName: "Alec M. Thompson",
                 mobile: "(44) 123 1234 123",

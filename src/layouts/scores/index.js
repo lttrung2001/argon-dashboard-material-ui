@@ -62,7 +62,7 @@ function ScoresTable() {
       const classrooms = response.data;
       setClassrooms(classrooms);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -77,7 +77,7 @@ function ScoresTable() {
       const scores = response.data;
       setScores(scores);
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -94,7 +94,7 @@ function ScoresTable() {
       callGetScores(selectedClassroomSubject);
       setMessage("Update scores successful!");
     } catch (e) {
-      setError(e);
+      setError(e.response.data.message);
     }
   };
 
@@ -243,7 +243,7 @@ function ScoresTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
