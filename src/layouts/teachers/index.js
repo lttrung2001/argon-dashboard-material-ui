@@ -266,7 +266,17 @@ function TeachersTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Gender</Typography>
-              <TextField id="gender" name="gender" fullWidth />
+            </Box>
+            <Box mx={3} my={1}>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="gender"
+                defaultValue={true}
+              >
+                <FormControlLabel value={true} control={<Radio />} label="Male" />
+                <FormControlLabel value={false} control={<Radio />} label="Female" />
+              </RadioGroup>
             </Box>
             <Box mx={2} my={1}>
               <Typography>Date of birth</Typography>
