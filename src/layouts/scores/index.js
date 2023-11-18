@@ -174,6 +174,7 @@ function ScoresTable() {
                   if (newValue) {
                     setSelectedClassroom(newValue);
                     setSelectedClassroomSubject(null);
+                    setScores([]);
                     changedMap.clear();
                   }
                 }}
@@ -189,6 +190,7 @@ function ScoresTable() {
                 onChange={(event, newValue) => {
                   if (newValue) {
                     setSelectedClassroomSubject(newValue);
+                    setScores([]);
                     handleGetScores(newValue);
                     changedMap.clear();
                   }
