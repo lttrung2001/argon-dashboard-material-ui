@@ -26,7 +26,7 @@ import ArgonBox from "components/ArgonBox";
 import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import ArgonButton from "components/ArgonButton";
-import apiHelper, { ACCESS_TOKEN, apiHelperPublic } from "../../../utils/Axios";
+import apiHelper, { ACCESS_TOKEN, ROLE, apiHelperPublic } from "../../../utils/Axios";
 
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
@@ -36,6 +36,7 @@ import { DialogContent } from '@mui/material';
 import { DialogContentText } from '@mui/material';
 import { DialogTitle } from '@mui/material';
 import { Dialog } from '@mui/material';
+import { jwtDecode } from "jwt-decode";
 
 // Image
 const bgImage =
@@ -53,6 +54,8 @@ function Illustration() {
     try {
     const response = await apiHelperPublic().post("/auth/login", loginData);
     const token = response.data.token;
+    const role = jwtDecode(token).role;
+    localStorage.setItem(ROLE, role);
     localStorage.setItem(ACCESS_TOKEN, token);
     navigator("/");
     navigator(0);
@@ -140,7 +143,7 @@ function Illustration() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            The system was interrupted, please reload the website
+            {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

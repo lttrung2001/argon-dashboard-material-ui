@@ -53,123 +53,160 @@ import ScoresTable from "layouts/scores";
 import RegistrationsTable from "layouts/registrations";
 import StudentsTable from "layouts/students";
 import { ACCESS_TOKEN } from "utils/Axios";
+import { ROLE } from "utils/Axios";
+import { MANAGER_ROLE } from "utils/Axios";
+import TeachingTable from "layouts/teaching";
 
 // localStorage.clear();
 var routes = [];
 if (localStorage.getItem(ACCESS_TOKEN)) {
-  routes = [
-    {
-      type: "route",
-      name: "Dashboard",
-      key: "dashboard",
-      route: "/dashboard",
-      icon: <ArgonBox component="i" color="primary" fontSize="14px" className="ni ni-tv-2" />,
-      component: <Dashboard />,
-    },
-    {
-      type: "route",
-      name: "Courses",
-      key: "courses",
-      route: "/courses",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
-      ),
-      component: <CoursesTable />,
-    },
-    {
-      type: "route",
-      name: "Registrations",
-      key: "registrations",
-      route: "/registrations",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
-      ),
-      component: <RegistrationsTable />,
-    },
-    {
-      type: "route",
-      name: "Teachers",
-      key: "teachers",
-      route: "/teachers",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
-      ),
-      component: <TeachersTable />,
-    },
-    {
-      type: "route",
-      name: "Students",
-      key: "students",
-      route: "/students",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
-      ),
-      component: <StudentsTable />,
-    },
-    {
-      type: "route",
-      name: "Rooms",
-      key: "rooms",
-      route: "/rooms",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-building" />
-      ),
-      component: <RoomsTable />,
-    },
-    {
-      type: "route",
-      name: "Subjects",
-      key: "subjects",
-      route: "/subjects",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
-      ),
-      component: <SubjectsTable />,
-    },
-    {
-      type: "route",
-      name: "Scores",
-      key: "scores",
-      route: "/scores",
-      icon: (
-        <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
-      ),
-      component: <ScoresTable />,
-    },
-    {
-      type: "route",
-      name: "Billing",
-      key: "billing",
-      route: "/billing",
-      icon: <ArgonBox component="i" color="success" fontSize="14px" className="ni ni-credit-card" />,
-      component: <Billing />,
-    },
-    {
-      type: "route",
-      name: "Virtual Reality",
-      key: "virtual-reality",
-      route: "/virtual-reality",
-      icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
-      component: <VirtualReality />,
-    },
-    {
-      type: "route",
-      name: "RTL",
-      key: "rtl",
-      route: "/rtl",
-      icon: <ArgonBox component="i" color="error" fontSize="14px" className="ni ni-world-2" />,
-      component: <RTL />,
-    },
-    { type: "title", title: "Account Pages", key: "account-pages" },
-    {
-      type: "route",
-      name: "Profile",
-      key: "profile",
-      route: "/profile",
-      icon: <ArgonBox component="i" color="dark" fontSize="14px" className="ni ni-single-02" />,
-      component: <Profile />,
-    },
-  ];
+  if (localStorage.getItem(ROLE) === MANAGER_ROLE) {
+    routes = [
+      {
+        type: "route",
+        name: "Dashboard",
+        key: "dashboard",
+        route: "/dashboard",
+        icon: <ArgonBox component="i" color="primary" fontSize="14px" className="ni ni-tv-2" />,
+        component: <Dashboard />,
+      },
+      {
+        type: "route",
+        name: "Courses",
+        key: "courses",
+        route: "/courses",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
+        ),
+        component: <CoursesTable />,
+      },
+      {
+        type: "route",
+        name: "Registrations",
+        key: "registrations",
+        route: "/registrations",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <RegistrationsTable />,
+      },
+      {
+        type: "route",
+        name: "Teachers",
+        key: "teachers",
+        route: "/teachers",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <TeachersTable />,
+      },
+      {
+        type: "route",
+        name: "Students",
+        key: "students",
+        route: "/students",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <StudentsTable />,
+      },
+      {
+        type: "route",
+        name: "Rooms",
+        key: "rooms",
+        route: "/rooms",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-building" />
+        ),
+        component: <RoomsTable />,
+      },
+      {
+        type: "route",
+        name: "Subjects",
+        key: "subjects",
+        route: "/subjects",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+        ),
+        component: <SubjectsTable />,
+      },
+      {
+        type: "route",
+        name: "Scores",
+        key: "scores",
+        route: "/scores",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+        ),
+        component: <ScoresTable />,
+      },
+      {
+        type: "route",
+        name: "Billing",
+        key: "billing",
+        route: "/billing",
+        icon: <ArgonBox component="i" color="success" fontSize="14px" className="ni ni-credit-card" />,
+        component: <Billing />,
+      },
+      {
+        type: "route",
+        name: "Virtual Reality",
+        key: "virtual-reality",
+        route: "/virtual-reality",
+        icon: <ArgonBox component="i" color="info" fontSize="14px" className="ni ni-app" />,
+        component: <VirtualReality />,
+      },
+      {
+        type: "route",
+        name: "RTL",
+        key: "rtl",
+        route: "/rtl",
+        icon: <ArgonBox component="i" color="error" fontSize="14px" className="ni ni-world-2" />,
+        component: <RTL />,
+      },
+      { type: "title", title: "Account Pages", key: "account-pages" },
+      {
+        type: "route",
+        name: "Profile",
+        key: "profile",
+        route: "/profile",
+        icon: <ArgonBox component="i" color="dark" fontSize="14px" className="ni ni-single-02" />,
+        component: <Profile />,
+      },
+    ];
+  } else {
+    routes = [
+      {
+        type: "route",
+        name: "Teaching",
+        key: "teaching",
+        route: "/teaching",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <TeachingTable />,
+      },
+      {
+        type: "route",
+        name: "Scores",
+        key: "scores",
+        route: "/scores",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+        ),
+        component: <ScoresTable />,
+      },
+      { type: "title", title: "Account Pages", key: "account-pages" },
+      {
+        type: "route",
+        name: "Profile",
+        key: "profile",
+        route: "/profile",
+        icon: <ArgonBox component="i" color="dark" fontSize="14px" className="ni ni-single-02" />,
+        component: <Profile />,
+      },
+    ]
+  }
 } else {
   routes = [
     {

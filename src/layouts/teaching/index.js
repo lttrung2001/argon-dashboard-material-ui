@@ -46,27 +46,24 @@ import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
 
-function RegistrationsTable() {
+function TeachingTable() {
   const [error, setError] = React.useState();
   const [students, setStudents] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
 
-  const callGetClassrooms = async () => {
+  const callGetTeachingClassrooms = async () => {
     try {
-      const response = await apiHelper().get(`/classrooms`);
-      const classrooms = response.data;
-      setClassrooms(classrooms);
-    } catch (e) {
-      setError(e.response.data.message);
-    } finally {
-    }
-  };
-
-  const callGetStudents = async (classroomId) => {
-    try {
-      const response = await apiHelper().get(`/registrations?classroomId=${classroomId}`);
-      const students = response.data;
-      setStudents(students);
+      const response = await apiHelper().get(`/classroom-subject/teaching`);
+      const idList = [];
+      const classroomList = [];
+      Array.from(response.data).forEach((item) => {
+        const classroom = item.classroom;
+        if (!idList.includes(classroom.id)) {
+          idList.push(classroom.id);
+          classroomList.push(classroom);
+        }
+      });
+      setClassrooms(classroomList);
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -74,15 +71,11 @@ function RegistrationsTable() {
   };
 
   useEffect(() => {
-    callGetClassrooms();
+    callGetTeachingClassrooms();
   }, []);
 
   const handleCloseErrorDialog = () => {
     setError(null);
-  };
-
-  const handleShowStudentList = (classroom) => {
-    callGetStudents(classroom.id);
   };
 
   const handleStudentClicked = (params) => {
@@ -116,11 +109,14 @@ function RegistrationsTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Registrations table</ArgonTypography>
+              <ArgonTypography variant="h6">Teaching table</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
-                    handleShowStudentList(newValue);
+                    const studentList = Array.from(newValue.registrationList).map((item) => {
+                      return item.student;
+                    });
+                    setStudents(studentList);
                   }
                 }}
                 disablePortal
@@ -183,4 +179,4 @@ function RegistrationsTable() {
   );
 }
 
-export default RegistrationsTable;
+export default TeachingTable;

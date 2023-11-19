@@ -48,3 +48,5 @@ export default () => {
 }
 
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
+export const ROLE = "role";
+export const MANAGER_ROLE = "MANAGER";

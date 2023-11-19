@@ -53,7 +53,7 @@ const bgImage =
   "https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MANAGER_ROLE, ROLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -67,6 +67,7 @@ import dayjs, { Dayjs } from 'dayjs';
 function Overview() {
 
   const [profile, setProfile] = useState();
+  const [classroomSubjects, setClassroomSubjects] = useState([]);
   const [error, setError] = useState();
 
   const callGetProfile = async () => {
@@ -79,9 +80,28 @@ function Overview() {
     }
   }
 
+  const callGetTeaching = async () => {
+    try {
+      const response = await apiHelper().get("/classroom-subject/teaching");
+      setClassroomSubjects(response.data);
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  }
+
   useEffect(() => {
     callGetProfile();
   }, []);
+
+  if (localStorage.getItem(ROLE) != MANAGER_ROLE) {
+    useEffect(() => {
+      callGetTeaching();
+    }, []);
+  }
+
+  const handleCloseErrorDialog = () => {
+    setError(null);
+  };
 
   return (
     <DashboardLayout
@@ -140,38 +160,36 @@ function Overview() {
           <ArgonBox pt={2} px={2}>
             <ArgonBox mb={0.5}>
               <ArgonTypography variant="h6" fontWeight="medium">
-                Projects
+                Your classrooms
               </ArgonTypography>
             </ArgonBox>
             <ArgonBox mb={1}>
               <ArgonTypography variant="button" fontWeight="regular" color="text">
-                Architects design houses
+                Classrooms you are teaching
               </ArgonTypography>
             </ArgonBox>
           </ArgonBox>
           <ArgonBox p={2}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6} xl={3}>
-                <DefaultProjectCard
-                  image={homeDecor1}
-                  label="project #2"
-                  title="modern"
-                  description="As Uber works through a huge amount of internal management turmoil."
-                  action={{
-                    type: "internal",
-                    route: "/pages/profile/profile-overview",
-                    color: "info",
-                    label: "View Project",
-                  }}
-                  authors={[
-                    { image: team1, name: "Elena Morison" },
-                    { image: team2, name: "Ryan Milly" },
-                    { image: team3, name: "Nick Daniel" },
-                    { image: team4, name: "Peterson" },
-                  ]}
-                />
-              </Grid>
-              <Grid item xs={12} md={6} xl={3}>
+              {
+                Array.from(classroomSubjects).map((cs) => {
+                  return <Grid item xs={12} md={6} xl={3} key={`${cs.classroom.id}|${cs.subject.id}`}>
+                    <DefaultProjectCard
+                      image={cs.classroom.course.thumbnail}
+                      label={cs.classroom.name}
+                      title={cs.subject.name}
+                      description={cs.classroom.course.desc}
+                      action={{
+                        type: "internal",
+                        route: "/teaching",
+                        color: "info",
+                        label: "View All Teaching Classes",
+                      }}
+                    />
+                  </Grid>
+                })
+              }
+              {/* <Grid item xs={12} md={6} xl={3}>
                 <DefaultProjectCard
                   image={homeDecor2}
                   label="project #1"
@@ -213,13 +231,34 @@ function Overview() {
               </Grid>
               <Grid item xs={12} md={6} xl={3}>
                 <PlaceholderCard title={{ variant: "h5", text: "New project" }} outlined />
-              </Grid>
+              </Grid> */}
             </Grid>
           </ArgonBox>
         </Card>
       </ArgonBox>
-
       <Footer />
+      {
+        error ? <Dialog
+          open={error}
+          onClose={handleCloseErrorDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            {error}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseErrorDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
     </DashboardLayout>
   );
 }
