@@ -593,5 +593,9 @@ License - nucleoapp.com/license/
   content: "\ea65";
 }
 
+.MuiInputBase-colorPrimary {
+  width: auto;
+}
+
 
 /* all icon font classes list here */

@@ -56,6 +56,7 @@ import { ACCESS_TOKEN } from "utils/Axios";
 import { ROLE } from "utils/Axios";
 import { MANAGER_ROLE } from "utils/Axios";
 import TeachingTable from "layouts/teaching";
+import SchedulingScreen from './layouts/scheduling/index';
 
 // localStorage.clear();
 var routes = [];
@@ -176,6 +177,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
     ];
   } else {
     routes = [
+      {
+        type: "route",
+        name: "Scheduling",
+        key: "scheduling",
+        route: "/scheduling",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <SchedulingScreen />,
+      },
       {
         type: "route",
         name: "Teaching",
