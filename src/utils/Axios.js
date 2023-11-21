@@ -50,3 +50,4 @@ export default () => {
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
 export const ROLE = "role";
 export const MANAGER_ROLE = "MANAGER";
+export const MESSAGE_INVALID_TOKEN = "Token was expired or invalid!";

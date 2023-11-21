@@ -237,7 +237,7 @@ function SubjectsTable() {
                 options={subjects}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Search subject" />}
               />
               <Button onClick={() => {
                 setShowCreateSubjectDialog(true);

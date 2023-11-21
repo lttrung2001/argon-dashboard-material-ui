@@ -446,7 +446,7 @@ function CoursesTable() {
                 options={courses}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Search course" />}
               />
               <Button onClick={onCreateNewCourseClicked}>Create</Button>
             </ArgonBox>
@@ -524,7 +524,7 @@ function CoursesTable() {
                 options={classrooms}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Search classroom" />}
               />
               <Button onClick={onCreateNewClassroomClicked}>Create</Button>
             </ArgonBox>
@@ -814,7 +814,7 @@ function CoursesTable() {
                 options={courses}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select course" />}
               />
             </Box>
             <Box mx={2} my={1}>
@@ -828,7 +828,7 @@ function CoursesTable() {
                 options={teachers}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.fullName}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select teacher" />}
               />
             </Box>
             <Box mx={2} my={1}>

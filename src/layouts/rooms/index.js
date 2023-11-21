@@ -173,7 +173,7 @@ function RoomsTable() {
                 options={rooms}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Search room" />}
               />
               <Button onClick={() => {
                 setShowCreateRoomDialog(true);

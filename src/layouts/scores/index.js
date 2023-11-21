@@ -183,7 +183,7 @@ function ScoresTable() {
                 options={classrooms}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
               <Autocomplete
                 key={selectedClassroomSubject}
@@ -200,7 +200,7 @@ function ScoresTable() {
                 options={selectedClassroom ? selectedClassroom.classroomSubjects : []}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.subject.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select subject" />}
               />
               { scores.length > 0 ? <Button onClick={handleSaveScores}>Save</Button> : <></>}
             </ArgonBox>

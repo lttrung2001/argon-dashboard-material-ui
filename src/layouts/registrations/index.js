@@ -123,12 +123,14 @@ function RegistrationsTable() {
                     handleShowStudentList(newValue);
                   }
                 }}
+                on
+                defaultValue={classrooms[0]}
                 disablePortal
                 id="combo-box-demo"
                 options={classrooms}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
             </ArgonBox>
             <ArgonBox

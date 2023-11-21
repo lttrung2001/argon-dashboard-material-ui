@@ -195,7 +195,7 @@ function TeachersTable() {
                 options={teachers}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.fullName}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Search teacher" />}
               />
               <Button onClick={() => {
                 setShowCreateTeacherDialog(true);

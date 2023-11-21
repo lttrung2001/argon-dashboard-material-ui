@@ -124,7 +124,7 @@ function TeachingTable() {
                 options={classrooms}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
             </ArgonBox>
             <ArgonBox
