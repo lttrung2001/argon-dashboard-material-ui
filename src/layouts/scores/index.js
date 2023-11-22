@@ -48,7 +48,7 @@ import { useDemoData } from '@mui/x-data-grid-generator';
 
 function ScoresTable() {
   const changedMap = new Map();
-  
+
   const [message, setMessage] = React.useState();
   const [error, setError] = React.useState();
   const [classrooms, setClassrooms] = React.useState([]);
@@ -168,7 +168,7 @@ function ScoresTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Scores table</ArgonTypography>
+              <ArgonTypography variant="h6">Score list of classroom subject</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
@@ -202,7 +202,7 @@ function ScoresTable() {
                 getOptionLabel={option => `${option.subject.name}`}
                 renderInput={(params) => <TextField {...params} placeholder="Select subject" />}
               />
-              { scores.length > 0 ? <Button onClick={handleSaveScores}>Save</Button> : <></>}
+              {scores.length > 0 ? <Button onClick={handleSaveScores}>Save</Button> : <></>}
             </ArgonBox>
             <ArgonBox
               sx={{
@@ -245,7 +245,7 @@ function ScoresTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

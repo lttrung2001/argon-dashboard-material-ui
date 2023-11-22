@@ -42,6 +42,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
 function CoursesTable() {
   //////////////////////////////////////// BEGIN TRANSFER LIST ////////////////////////////////////////
@@ -143,7 +144,11 @@ function CoursesTable() {
   const { columns: prCols } = classroomsTableData;
 
   const [error, setError] = React.useState();
+  const [confirm, setConfirm] = React.useState();
+  const [confirmDelete, setConfirmDelete] = React.useState();
 
+  const [originCourses, setOriginCourses] = React.useState([]);
+  const [originClassrooms, setOriginClassrooms] = React.useState([]);
   const [courses, setCourses] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
   const [subjects, setSubjects] = React.useState([]);
@@ -170,9 +175,13 @@ function CoursesTable() {
     try {
       const response = await apiHelper().get("/courses");
       const courses = response.data;
+      setOriginCourses(courses);
       setCourses(courses);
     } catch (e) {
       setError(e.response.data.message);
+    } finally {
+      handleCloseCreateNewCoursePopup();
+      handleCloseEditCoursePopup();
     }
   };
 
@@ -180,9 +189,13 @@ function CoursesTable() {
     try {
       const response = await apiHelper().get("/classrooms");
       const classrooms = response.data;
+      setOriginClassrooms(classrooms);
       setClassrooms(classrooms);
     } catch (e) {
       setError(e.response.data.message);
+    } finally {
+      handleCloseCreateNewClassroomPopup();
+      handleCloseUpdateClassroomPopup();
     }
   };
 
@@ -194,10 +207,9 @@ function CoursesTable() {
         }
       });
       callGetCourses();
+      setConfirm("Create course successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseCreateNewCoursePopup();
     }
   };
 
@@ -209,10 +221,9 @@ function CoursesTable() {
         }
       });
       callGetCourses();
+      setConfirm("Update course successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      setShowCreateCoursePopup(false);
     }
   };
 
@@ -220,10 +231,9 @@ function CoursesTable() {
     try {
       await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
       callGetCourses();
+      setConfirm("Delete course successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseEditCoursePopup();
     }
   };
 
@@ -251,10 +261,9 @@ function CoursesTable() {
     try {
       await apiHelper().post("/classrooms/create", createClassroomData);
       callGetClassrooms();
+      setConfirm("Create classroom successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseCreateNewClassroomPopup();
     }
   };
 
@@ -262,10 +271,9 @@ function CoursesTable() {
     try {
       await apiHelper().put("/classrooms/update", updateClassroomData);
       callGetClassrooms();
+      setConfirm("Update classroom successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      setSelectedClassroom(null);
     }
   };
 
@@ -273,10 +281,9 @@ function CoursesTable() {
     try {
       await apiHelper().delete(`/classrooms/delete?classroomId=${classroomId}`);
       callGetClassrooms();
+      setConfirm("Delete classroom successfully!");
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseUpdateClassroomPopup();
     }
   };
 
@@ -414,16 +421,28 @@ function CoursesTable() {
     callUpdateClassroom(updateClassroomData);
   };
 
-  const handleDeleteClassroom = (event) => {
-    callDeleteClassroom(selectedClassroom.id)
+  const handleDeleteClassroom = (classroom) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_CLASSROOM,
+      `Are you sure to delete classroom with name ${classroom.name}?`,
+      classroom
+    ));
   }
 
-  const handleDeleteCourse = () => {
-    callDeleteCourse(selectedCourse.id);
+  const handleDeleteCourse = (course) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_COURSE,
+      `Are you sure to delete course with name ${course.name}?`,
+      course
+    ));
   };
 
   const handleCloseErrorDialog = () => {
     setError(null);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirm(null);
   };
 
   return (
@@ -433,20 +452,22 @@ function CoursesTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Courses table</ArgonTypography>
-              <Autocomplete
-                onChange={(event, newValue) => {
-                  if (newValue) {
-                    setSelectedCourse(newValue);
-                    onCourseSelected(newValue);
+              <ArgonTypography variant="h6">Course list</ArgonTypography>
+              <TextField
+                style={{
+                  width: 500
+                }}
+                placeholder="Search course"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value.length == 0) {
+                    setCourses(originCourses);
+                  } else {
+                    setCourses(Array.from(originCourses).filter((course) => {
+                      return String(course.id).includes(value) || String(course.name).includes(value);
+                    }));
                   }
                 }}
-                disablePortal
-                id="combo-box-demo"
-                options={courses}
-                sx={{ width: 300 }}
-                getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} placeholder="Search course" />}
               />
               <Button onClick={onCreateNewCourseClicked}>Create</Button>
             </ArgonBox>
@@ -492,7 +513,7 @@ function CoursesTable() {
                       <ArgonTypography
                         onClick={() => {
                           // Handle delete course
-                          callDeleteCourse(course.id);
+                          handleDeleteCourse(course);
                         }}
                         component="a"
                         href="#"
@@ -512,19 +533,22 @@ function CoursesTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Classrooms table</ArgonTypography>
-              <Autocomplete
-                onChange={(event, newValue) => {
-                  if (newValue) {
-                    setSelectedClassroom(newValue);
+              <ArgonTypography variant="h6">Classroom list</ArgonTypography>
+              <TextField
+                style={{
+                  width: 500
+                }}
+                placeholder="Search course"
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value.length == 0) {
+                    setClassrooms(originClassrooms);
+                  } else {
+                    setClassrooms(Array.from(originClassrooms).filter((classroom) => {
+                      return String(classroom.id).includes(value) || String(classroom.name).includes(value);
+                    }));
                   }
                 }}
-                disablePortal
-                id="combo-box-demo"
-                options={classrooms}
-                sx={{ width: 300 }}
-                getOptionLabel={option => `${option.id} | ${option.name}`}
-                renderInput={(params) => <TextField {...params} placeholder="Search classroom" />}
               />
               <Button onClick={onCreateNewClassroomClicked}>Create</Button>
             </ArgonBox>
@@ -574,7 +598,7 @@ function CoursesTable() {
                       <ArgonTypography
                         onClick={() => {
                           // Handle delete classroom
-                          callDeleteClassroom(classroom.id);
+                          handleDeleteClassroom(classroom);
                         }}
                         component="a"
                         href="#"
@@ -682,8 +706,9 @@ function CoursesTable() {
               <Grid item>{customList(right)}</Grid>
             </Grid>
             <DialogActions>
-              <Button onClick={handleCloseCreateNewCoursePopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreateNewCoursePopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -783,9 +808,12 @@ function CoursesTable() {
               <Grid item>{customList(right)}</Grid>
             </Grid>
             <DialogActions>
-              <Button onClick={handleDeleteCourse}>Delete</Button>
-              <Button onClick={handleCloseEditCoursePopup}>Cancel</Button>
               <Button type="submit">Edit</Button>
+              <Button onClick={() => {
+                handleDeleteCourse(selectedCourse);
+              }}>Delete</Button>
+              <Button onClick={handleCloseEditCoursePopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -857,8 +885,9 @@ function CoursesTable() {
               </LocalizationProvider>
             </Box>
             <DialogActions>
-              <Button onClick={handleCloseCreateNewClassroomPopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreateNewClassroomPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -932,9 +961,12 @@ function CoursesTable() {
               </LocalizationProvider>
             </Box>
             <DialogActions>
-              <Button onClick={handleDeleteClassroom}>Delete</Button>
-              <Button onClick={handleCloseUpdateClassroomPopup}>Cancel</Button>
               <Button type="submit">Update</Button>
+              <Button onClick={() => {
+                handleDeleteClassroom(selectedClassroom);
+              }}>Delete</Button>
+              <Button onClick={handleCloseUpdateClassroomPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -952,7 +984,7 @@ function CoursesTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -962,10 +994,70 @@ function CoursesTable() {
           </DialogActions>
         </Dialog> : <></>
       }
+      {
+        confirm ? <Dialog
+          open={confirm}
+          onClose={handleCloseConfirmDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmDelete ? <Dialog
+          open={confirmDelete}
+          onClose={() => {
+            setConfirmDelete(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmDelete.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              if (confirmDelete.ACTION_DELETE_COURSE) {
+                callDeleteCourse(confirmDelete.data);
+              } else if (confirm.ACTION_DELETE_CLASSROOM) {
+                callDeleteClassroom(confirmDelete.data)
+              }
+            }} autoFocus>
+              Agree
+            </Button>
+            <Button onClick={() => {
+              setConfirmDelete(null);
+            }} autoFocus>
+              Cancel
+            </Button>
 
+          </DialogActions>
+        </Dialog> : <></>
+      }
       <Footer />
     </DashboardLayout>
   );
 }
 
 export default CoursesTable;
+
+const ACTION_DELETE_COURSE = "ACTION_DELETE_COURSE";
+const ACTION_DELETE_CLASSROOM = "ACTION_DELETE_CLASSROOM";

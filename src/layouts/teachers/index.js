@@ -46,9 +46,12 @@ import Paper from '@mui/material/Paper';
 import { DataGrid } from "@mui/x-data-grid";
 import { useDemoData } from '@mui/x-data-grid-generator';
 import RadioGroup from '@mui/material/RadioGroup';
+import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
 function TeachersTable() {
   const [error, setError] = React.useState();
+  const [confirm, setConfirm] = React.useState();
+  const [confirmDelete, setConfirmDelete] = React.useState();
   const [teachers, setTeachers] = React.useState([]);
   const [showCreateTeacherDialog, setShowCreateTeacherDialog] = React.useState();
   const [selectedTeacher, setSelectedTeacher] = React.useState();
@@ -72,6 +75,7 @@ function TeachersTable() {
     try {
       await apiHelper().post("/teachers/create", data);
       callGetTeachers();
+      setConfirm("Create teacher successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -81,6 +85,7 @@ function TeachersTable() {
     try {
       await apiHelper().put("/teachers/update", data);
       callGetTeachers();
+      setConfirm("Update teacher successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -91,6 +96,7 @@ function TeachersTable() {
       await apiHelper().delete(`/teachers/delete?teacherId=${teacherId}`);
       setSelectedTeacher(null);
       callGetTeachers();
+      setConfirm("Delete teacher successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -151,12 +157,20 @@ function TeachersTable() {
     callUpdateTeacher(updateTeacherData);
   };
 
-  const handleDeleteTeacher = () => {
-    callDeleteTeacher(selectedTeacher.id);
+  const handleDeleteTeacher = (teacher) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_TEACHER,
+      `Are you sure to delete teacher with name ${teacher.fullName}`,
+      teacher
+    ));
   }
 
   const handleCloseErrorDialog = () => {
     setError(null);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirm(null);
   };
 
   ///////////////// BEGIN DEMO TABLE
@@ -183,7 +197,7 @@ function TeachersTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Teachers table</ArgonTypography>
+              <ArgonTypography variant="h6">Teacher list</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
@@ -238,7 +252,7 @@ function TeachersTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -304,8 +318,9 @@ function TeachersTable() {
               <TextField id="email" name="email" fullWidth />
             </Box>
             <DialogActions>
-              <Button onClick={handleCloseCreateTeacherPopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreateTeacherPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -367,11 +382,67 @@ function TeachersTable() {
               <TextField id="email" name="email" fullWidth defaultValue={selectedTeacher.email} />
             </Box>
             <DialogActions>
-              <Button onClick={handleDeleteTeacher}>Delete</Button>
-              <Button onClick={handleCloseUpdateTeacherPopup}>Cancel</Button>
               <Button type="submit">Update</Button>
+              <Button onClick={() => {
+                handleDeleteTeacher(selectedTeacher);
+              }}>Delete</Button>
+              <Button onClick={handleCloseUpdateTeacherPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
+        </Dialog> : <></>
+      }
+      {
+        confirm ? <Dialog
+          open={confirm}
+          onClose={handleCloseConfirmDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmDelete ? <Dialog
+          open={confirmDelete}
+          onClose={() => {
+            setConfirmDelete(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmDelete.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              setConfirmDelete(null);
+            }} autoFocus>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              callDeleteTeacher(confirmDelete.data.id);
+            }} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
         </Dialog> : <></>
       }
       <Footer />
@@ -380,3 +451,5 @@ function TeachersTable() {
 }
 
 export default TeachersTable;
+
+const ACTION_DELETE_TEACHER = "ACTION_DELETE_TEACHER";

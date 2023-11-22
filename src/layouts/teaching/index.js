@@ -109,7 +109,7 @@ function TeachingTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Teaching table</ArgonTypography>
+              <ArgonTypography variant="h6">Teaching classroom list</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {

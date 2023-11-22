@@ -27,7 +27,7 @@ import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/Axios";
-import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "components/UploadFileButton";
@@ -44,9 +44,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid } from "@mui/x-data-grid";
+import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
 function RoomsTable() {
   const [error, setError] = React.useState();
+  const [confirm, setConfirm] = React.useState();
+  const [confirmDelete, setConfirmDelete] = React.useState();
   const [rooms, setRooms] = React.useState([]);
   const [showCreateRoomDialog, setShowCreateRoomDialog] = React.useState();
   const [selectedRoom, setSelectedRoom] = React.useState();
@@ -68,6 +71,7 @@ function RoomsTable() {
     try {
       await apiHelper().post("/rooms/create", data);
       callGetRooms();
+      setConfirm("Create room successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -77,6 +81,7 @@ function RoomsTable() {
     try {
       await apiHelper().put("/rooms/update", data);
       callGetRooms();
+      setConfirm("Update room successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -87,6 +92,7 @@ function RoomsTable() {
       await apiHelper().delete(`/rooms/delete?roomId=${id}`);
       setSelectedRoom(null);
       callGetRooms();
+      setConfirm("Delete room successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -114,6 +120,7 @@ function RoomsTable() {
     const data = new FormData(event.currentTarget);
     const createRoomData = {
       name: data.get("name"),
+      capacity: data.get("capacity")
     }
     console.log("DATA::");
     console.log(createRoomData);
@@ -126,7 +133,9 @@ function RoomsTable() {
     const data = new FormData(event.currentTarget);
     const updateRoomData = {
       roomId: selectedRoom.id,
-      name: data.get("name")
+      name: data.get("name"),
+      capacity: data.get("capacity"),
+      canUse: data.get("canUse") === "on" ? true : false
     }
     console.log("DATA::");
     console.log(updateRoomData);
@@ -134,13 +143,22 @@ function RoomsTable() {
     callUpdateRoom(updateRoomData);
   };
 
-  const handleDeleteRoom = () => {
-    callDeleteRoom(selectedRoom.id);
+  const handleDeleteRoom = (room) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_ROOM,
+      `Are you sure to delete this room with name ${room.name}?`,
+      room
+    ));
   }
 
   const handleCloseErrorDialog = () => {
     setError(null);
   };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirm(null);
+  };
+
 
   ///////////////// BEGIN DEMO TABLE
   const roomColumns = [
@@ -161,7 +179,7 @@ function RoomsTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Rooms table</ArgonTypography>
+              <ArgonTypography variant="h6">Room list</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
@@ -216,7 +234,7 @@ function RoomsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -242,9 +260,14 @@ function RoomsTable() {
               <Typography>Room name</Typography>
               <TextField id="name" name="name" fullWidth />
             </Box>
+            <Box mx={2} my={1}>
+              <Typography>Capacity</Typography>
+              <TextField id="capacity" name="capacity" fullWidth />
+            </Box>
             <DialogActions>
-              <Button onClick={handleCloseCreateRoomPopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreateRoomPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -265,12 +288,75 @@ function RoomsTable() {
               <Typography>Room name</Typography>
               <TextField id="name" name="name" fullWidth defaultValue={selectedRoom.name} />
             </Box>
+            <Box mx={2} my={1}>
+              <Typography>Capacity</Typography>
+              <TextField id="capacity" name="capacity" fullWidth defaultValue={selectedRoom.capacity} />
+            </Box>
+            <Box mx={3} my={1}>
+              <FormControlLabel id="canUse" name="canUse" control={<Checkbox defaultChecked={selectedRoom.canUse} />} label="Can use" />
+            </Box>
             <DialogActions>
-              <Button onClick={handleDeleteRoom}>Delete</Button>
-              <Button onClick={handleCloseUpdateRoomPopup}>Cancel</Button>
               <Button type="submit">Update</Button>
+              <Button onClick={() => {
+                handleDeleteRoom(selectedRoom);
+              }}>Delete</Button>
+              <Button onClick={handleCloseUpdateRoomPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
+        </Dialog> : <></>
+      }
+      {
+        confirm ? <Dialog
+          open={confirm}
+          onClose={handleCloseConfirmDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmDelete ? <Dialog
+          open={confirmDelete}
+          onClose={() => {
+            setConfirmDelete(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmDelete.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              setConfirmDelete(null);
+            }} autoFocus>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              callDeleteRoom(confirmDelete.data.id);
+            }} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
         </Dialog> : <></>
       }
       <Footer />
@@ -279,3 +365,5 @@ function RoomsTable() {
 }
 
 export default RoomsTable;
+
+const ACTION_DELETE_ROOM = "ACTION_DELETE_ROOM"

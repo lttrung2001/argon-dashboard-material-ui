@@ -49,6 +49,8 @@ import RadioGroup from '@mui/material/RadioGroup';
 
 function StudentsTable() {
   const [error, setError] = React.useState();
+  const [confirm, setConfirm] = React.useState();
+  const [confirmDelete, setConfirmDelete] = React.useState();
   const [students, setStudents] = React.useState([]);
   const [showCreatePopup, setShowCreatePopup] = React.useState(false);
   const [selectedStudent, setSelectedStudent] = React.useState();
@@ -72,6 +74,7 @@ function StudentsTable() {
     try {
       await apiHelper().post("/students/create", data);
       callGetStudents();
+      setConfirm("Create student successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -81,6 +84,7 @@ function StudentsTable() {
     try {
       await apiHelper().put("/students/update", data);
       callGetStudents();
+      setConfirm("Update student successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -138,6 +142,10 @@ function StudentsTable() {
     setError(null);
   };
 
+  const handleCloseConfirmDialog = () => {
+    setConfirm(null);
+  };
+
   const handleStudentClicked = (params) => {
     const student = params.row;
     setUpdateDob(dayjs(student.dob).format("DD/MM/YYYY"));
@@ -171,7 +179,7 @@ function StudentsTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Students table</ArgonTypography>
+              <ArgonTypography variant="h6">Student list</ArgonTypography>
               <Button onClick={() => {
                 setShowCreatePopup(true);
               }}>Create</Button>
@@ -213,7 +221,7 @@ function StudentsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -224,7 +232,6 @@ function StudentsTable() {
         </Dialog> : <></>
       }
       {
-        // Create new classroom dialog
         showCreatePopup ? <Dialog
           fullWidth
           open={showCreatePopup}
@@ -233,7 +240,7 @@ function StudentsTable() {
           onClose={handleCloseCreatePopup}
           aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle>{"Create new clasroom"}</DialogTitle>
+          <DialogTitle>{"Create new student"}</DialogTitle>
           <Box component="form" onSubmit={handleCreateStudent}>
             <Box mx={2} my={1}>
               <Typography>Fullname</Typography>
@@ -279,14 +286,14 @@ function StudentsTable() {
               <TextField id="email" name="email" fullWidth />
             </Box>
             <DialogActions>
-              <Button onClick={handleCloseCreatePopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreatePopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
       }
       {
-        // Create new classroom dialog
         selectedStudent ? <Dialog
           fullWidth
           open={selectedStudent}
@@ -295,7 +302,7 @@ function StudentsTable() {
           onClose={handleCloseUpdatePopup}
           aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle>{"Create new clasroom"}</DialogTitle>
+          <DialogTitle>{"Update student info"}</DialogTitle>
           <Box component="form" onSubmit={handleUpdateStudent}>
             <Box mx={2} my={1}>
               <Typography>Fullname</Typography>
@@ -343,10 +350,64 @@ function StudentsTable() {
               <TextField id="email" name="email" fullWidth defaultValue={selectedStudent.email} />
             </Box>
             <DialogActions>
-              <Button onClick={handleCloseUpdatePopup}>Cancel</Button>
               <Button type="submit">Update</Button>
+              <Button onClick={handleCloseUpdatePopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
+        </Dialog> : <></>
+      }
+      {
+        confirm ? <Dialog
+          open={confirm}
+          onClose={handleCloseConfirmDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmDelete ? <Dialog
+          open={confirmDelete}
+          onClose={() => {
+            setConfirmDelete(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmDelete.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              setConfirmDelete(null);
+            }} autoFocus>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              callDeleteRoom(confirmDelete.data.id);
+            }} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
         </Dialog> : <></>
       }
       <Footer />
@@ -355,3 +416,5 @@ function StudentsTable() {
 }
 
 export default StudentsTable;
+
+const ACTION_DELETE_STUDENT = "ACTION_DELETE_STUDENT";

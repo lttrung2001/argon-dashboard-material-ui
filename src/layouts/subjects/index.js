@@ -45,9 +45,12 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
+import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
 function SubjectsTable() {
   const [error, setError] = React.useState();
+  const [confirm, setConfirm] = React.useState();
+  const [confirmDelete, setConfirmDelete] = React.useState();
   const [subjects, setSubjects] = React.useState([]);
   const [files, setFiles] = React.useState([]);
   const [showCreateSubjectDialog, setShowCreateSubjectDialog] = React.useState();
@@ -74,6 +77,7 @@ function SubjectsTable() {
         }
       });
       callGetSubjects();
+      setConfirm("Create subject successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -87,6 +91,7 @@ function SubjectsTable() {
         }
       });
       callGetSubjects();
+      setConfirm("Update subject successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -97,6 +102,7 @@ function SubjectsTable() {
       await apiHelper().delete(`/subjects/delete?subjectId=${id}`);
       setSelectedSubject(null);
       callGetSubjects();
+      setConfirm("Delete subject successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -151,6 +157,7 @@ function SubjectsTable() {
     const data = new FormData(event.currentTarget);
     const requestData = {
       name: data.get("name"),
+      lessons: data.get("lessons"),
       files: files
     };
     console.log("DATA::");
@@ -172,6 +179,7 @@ function SubjectsTable() {
       subjectId: selectedSubject.id,
       changedDocuments: JSON.stringify(existedDocs),
       name: data.get("name"),
+      lessons: data.get("lessons"),
       files: newFiles.map((item) => {
         return item.url;
       })
@@ -182,8 +190,12 @@ function SubjectsTable() {
     callUpdateSubject(requestData);
   };
 
-  const handleDeleteSubject = () => {
-    callDeleteSubject(selectedSubject.id);
+  const handleDeleteSubject = (subject) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_SUBJECT,
+      `Are you sure to subject with id ${subject.id}`,
+      subject
+    ));
   }
 
   const handleRemoveFileFromCreateList = (file) => {
@@ -206,6 +218,10 @@ function SubjectsTable() {
     setError(null);
   };
 
+  const handleCloseConfirmDialog = () => {
+    setConfirm(null);
+  };
+
   ///////////////// BEGIN DEMO TABLE
   const subjectColumns = [
     { field: "id", headerName: "ID" },
@@ -225,7 +241,7 @@ function SubjectsTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Subjects table</ArgonTypography>
+              <ArgonTypography variant="h6">Subject list</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
@@ -280,7 +296,7 @@ function SubjectsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -331,9 +347,14 @@ function SubjectsTable() {
               <Typography>Subject name</Typography>
               <TextField id="name" name="name" fullWidth />
             </Box>
+            <Box mx={2} my={1}>
+              <Typography>Number of lessons</Typography>
+              <TextField id="lessons" name="lessons" fullWidth />
+            </Box>
             <DialogActions>
-              <Button onClick={handleCloseCreateSubjectPopup}>Cancel</Button>
               <Button type="submit">Create</Button>
+              <Button onClick={handleCloseCreateSubjectPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
         </Dialog> : <></>
@@ -386,12 +407,72 @@ function SubjectsTable() {
               <Typography>Subject name</Typography>
               <TextField id="name" name="name" fullWidth defaultValue={selectedSubject.name} />
             </Box>
+            <Box mx={2} my={1}>
+              <Typography>Number of lessons</Typography>
+              <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} />
+            </Box>
             <DialogActions>
-              <Button onClick={handleDeleteSubject}>Delete</Button>
-              <Button onClick={handleCloseUpdateSubjectPopup}>Cancel</Button>
               <Button type="submit">Update</Button>
+              <Button onClick={() => {
+                handleDeleteSubject(selectedSubject);
+              }}>Delete</Button>
+              <Button onClick={handleCloseUpdateSubjectPopup}>Cancel</Button>
+
             </DialogActions>
           </Box>
+        </Dialog> : <></>
+      }
+      {
+        confirm ? <Dialog
+          open={confirm}
+          onClose={handleCloseConfirmDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirmDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmDelete ? <Dialog
+          open={confirmDelete}
+          onClose={() => {
+            setConfirmDelete(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmDelete.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              setConfirmDelete(null);
+            }} autoFocus>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              callDeleteSubject(confirmDelete.data.id);
+            }} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
         </Dialog> : <></>
       }
       <Footer />
@@ -400,3 +481,5 @@ function SubjectsTable() {
 }
 
 export default SubjectsTable;
+
+const ACTION_DELETE_SUBJECT = "ACTION_DELETE_SUBJECT";

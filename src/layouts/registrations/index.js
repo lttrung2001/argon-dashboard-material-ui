@@ -50,12 +50,16 @@ function RegistrationsTable() {
   const [error, setError] = React.useState();
   const [students, setStudents] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
+  const [confirmPayment, setConfirmPayment] = React.useState();
 
   const callGetClassrooms = async () => {
     try {
       const response = await apiHelper().get(`/classrooms`);
       const classrooms = response.data;
       setClassrooms(classrooms);
+      if (Array.from(classrooms).length > 0) {
+        handleShowStudentList(classrooms[0]);
+      }
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -97,6 +101,20 @@ function RegistrationsTable() {
     { field: "gender", headerName: "Gender", flex: 1, valueGetter: (params) => getGenderTitle(params.row?.gender) },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "phoneNumber", headerName: "Phone number", flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      sortable: false,
+      renderCell: ({ row }) => (
+        <Button onClick={() => {
+          setConfirmPayment({
+            message: `Are you sure to confirm payment for this student?`
+          });
+        }}>
+          Pay
+        </Button>
+      ),
+    }
   ]
 
   const getGenderTitle = (gender) => {
@@ -116,15 +134,14 @@ function RegistrationsTable() {
         <ArgonBox mb={3}>
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <ArgonTypography variant="h6">Registrations table</ArgonTypography>
+              <ArgonTypography variant="h6">Registration list of classroom</ArgonTypography>
               <Autocomplete
                 onChange={(event, newValue) => {
                   if (newValue) {
                     handleShowStudentList(newValue);
                   }
                 }}
-                on
-                defaultValue={classrooms[0]}
+                value={classrooms[0]}
                 disablePortal
                 id="combo-box-demo"
                 options={classrooms}
@@ -175,6 +192,37 @@ function RegistrationsTable() {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseErrorDialog} autoFocus>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        confirmPayment ? <Dialog
+          open={confirmPayment}
+          onClose={() => {
+            setConfirmPayment(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirmPayment.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              setConfirmPayment(null);
+            }} autoFocus>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              // call update status
+            }} autoFocus>
               Agree
             </Button>
           </DialogActions>
