@@ -163,7 +163,16 @@ function RoomsTable() {
   ///////////////// BEGIN DEMO TABLE
   const roomColumns = [
     { field: "id", headerName: "ID" },
-    { field: "name", headerName: "Room name", flex: 1 }
+    { field: "name", headerName: "Room name", flex: 1 },
+    { field: "capacity", headerName: "Capacity", flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      sortable: false,
+      renderCell: ({ row }) => (
+        <ArgonBadge variant="gradient" badgeContent={row.canUse ? "Available" : "Unavailable"} color={row.canUse ? "success" : "error"} size="xs" container />
+      ),
+    },
   ]
 
   const [paginationModel, setPaginationModel] = React.useState({
@@ -262,7 +271,9 @@ function RoomsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Capacity</Typography>
-              <TextField id="capacity" name="capacity" fullWidth />
+              <TextField id="capacity" name="capacity" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <DialogActions>
               <Button type="submit">Create</Button>
@@ -290,7 +301,9 @@ function RoomsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Capacity</Typography>
-              <TextField id="capacity" name="capacity" fullWidth defaultValue={selectedRoom.capacity} />
+              <TextField id="capacity" name="capacity" fullWidth defaultValue={selectedRoom.capacity} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={3} my={1}>
               <FormControlLabel id="canUse" name="canUse" control={<Checkbox defaultChecked={selectedRoom.canUse} />} label="Can use" />
@@ -346,16 +359,18 @@ function RoomsTable() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
+          <Button onClick={() => {
+              callDeleteRoom(confirmDelete.data.id);
+              setConfirmDelete(null);
+            }} autoFocus>
+              Agree
+            </Button>
             <Button onClick={() => {
               setConfirmDelete(null);
             }} autoFocus>
               Cancel
             </Button>
-            <Button onClick={() => {
-              callDeleteRoom(confirmDelete.data.id);
-            }} autoFocus>
-              Agree
-            </Button>
+            
           </DialogActions>
         </Dialog> : <></>
       }

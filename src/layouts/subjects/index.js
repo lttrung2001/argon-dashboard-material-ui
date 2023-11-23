@@ -225,7 +225,8 @@ function SubjectsTable() {
   ///////////////// BEGIN DEMO TABLE
   const subjectColumns = [
     { field: "id", headerName: "ID" },
-    { field: "name", headerName: "Subject name", flex: 1 }
+    { field: "name", headerName: "Subject name", flex: 1 },
+    { field: "lessons", headerName: "Lessons", flex: 1 }
   ]
 
   const [paginationModel, setPaginationModel] = React.useState({
@@ -349,7 +350,9 @@ function SubjectsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
-              <TextField id="lessons" name="lessons" fullWidth />
+              <TextField id="lessons" name="lessons" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <DialogActions>
               <Button type="submit">Create</Button>
@@ -409,7 +412,9 @@ function SubjectsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
-              <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} />
+              <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <DialogActions>
               <Button type="submit">Update</Button>
@@ -462,16 +467,18 @@ function SubjectsTable() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
+          <Button onClick={() => {
+              callDeleteSubject(confirmDelete.data.id);
+              setConfirmDelete(null);
+            }} autoFocus>
+              Agree
+            </Button>
             <Button onClick={() => {
               setConfirmDelete(null);
             }} autoFocus>
               Cancel
             </Button>
-            <Button onClick={() => {
-              callDeleteSubject(confirmDelete.data.id);
-            }} autoFocus>
-              Agree
-            </Button>
+            
           </DialogActions>
         </Dialog> : <></>
       }

@@ -48,17 +48,17 @@ import InfoIcon from '@mui/icons-material/Info';
 
 function RegistrationsTable() {
   const [error, setError] = React.useState();
-  const [students, setStudents] = React.useState([]);
+  const [classroomRegistrationList, setClassroomRegistrationList] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
   const [confirmPayment, setConfirmPayment] = React.useState();
 
   const callGetClassrooms = async () => {
     try {
       const response = await apiHelper().get(`/classrooms`);
-      const classrooms = response.data;
-      setClassrooms(classrooms);
-      if (Array.from(classrooms).length > 0) {
-        handleShowStudentList(classrooms[0]);
+      const data = response.data;
+      setClassrooms(data);
+      if (Array.from(data).length > 0) {
+        handleShowStudentList(data[0]);
       }
     } catch (e) {
       setError(e.response.data.message);
@@ -69,8 +69,22 @@ function RegistrationsTable() {
   const callGetStudents = async (classroomId) => {
     try {
       const response = await apiHelper().get(`/registrations?classroomId=${classroomId}`);
-      const students = response.data;
-      setStudents(students);
+      const registrations = response.data;
+      setClassroomRegistrationList(registrations);
+    } catch (e) {
+      setError(e.response.data.message);
+    } finally {
+    }
+  };
+
+  const callUpdatePaymentStatus = async (classroomId, studentId) => {
+    try {
+      const requestData = {
+        classroomId: classroomId,
+        studentId: studentId
+      };
+      await apiHelper().put(`/registrations/update`, requestData);
+      callGetStudents(classroomId);
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -91,30 +105,41 @@ function RegistrationsTable() {
 
   const handleStudentClicked = (params) => {
     const studentSelected = params.row;
+    // Show student details
   };
 
   ///////////////// BEGIN DEMO TABLE
-  const studentColumns = [
-    { field: "id", headerName: "ID" },
-    { field: "fullName", headerName: "Fullname", flex: 1 },
-    { field: "dob", headerName: "Day of birth", flex: 1, valueGetter: (params) => dayjs(params.row?.dob).format("DD/MM/YYYY") },
-    { field: "gender", headerName: "Gender", flex: 1, valueGetter: (params) => getGenderTitle(params.row?.gender) },
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "phoneNumber", headerName: "Phone number", flex: 1 },
+  const registrationColumns = [
+    { field: "id", headerName: "ID", valueGetter: (params) => params.row?.student.id },
+    { field: "fullName", headerName: "Fullname", flex: 1, valueGetter: (params) => params.row?.student.fullName },
+    { field: "dob", headerName: "Day of birth", flex: 1, valueGetter: (params) => dayjs(params.row?.student.dob).format("DD/MM/YYYY") },
+    { field: "email", headerName: "Email", flex: 1, valueGetter: (params) => params.row?.student.email },
+    { field: "phoneNumber", headerName: "Phone number", flex: 1, valueGetter: (params) => params.row?.student.phoneNumber },
     {
       field: "status",
       headerName: "Status",
       sortable: false,
       renderCell: ({ row }) => (
-        <Button onClick={() => {
+        <ArgonBadge variant="gradient" badgeContent={row.isPaid ? "Paid" : "Unpaid"} color={row.isPaid ? "success" : "error"} size="xs" container />
+      ),
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      sortable: false,
+      renderCell: ({ row }) => (
+        row.isPaid ? <></> : <Button onClick={() => {
           setConfirmPayment({
-            message: `Are you sure to confirm payment for this student?`
+            message: `Are you sure to confirm payment for this student?`,
+            data: row
           });
         }}>
           Pay
         </Button>
+
       ),
     }
+
   ]
 
   const getGenderTitle = (gender) => {
@@ -136,6 +161,9 @@ function RegistrationsTable() {
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Registration list of classroom</ArgonTypography>
               <Autocomplete
+                style={{
+                  width: 500
+                }}
                 onChange={(event, newValue) => {
                   if (newValue) {
                     handleShowStudentList(newValue);
@@ -163,11 +191,12 @@ function RegistrationsTable() {
 
               <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
+                  getRowId={(row) => `${row.student.id}|${row.classroom.id}`}
                   paginationModel={paginationModel}
                   onPaginationModelChange={setPaginationModel}
-                  columns={studentColumns}
-                  rows={students}
-                  onRowClick={handleStudentClicked} {...students}
+                  columns={registrationColumns}
+                  rows={classroomRegistrationList}
+                  onRowClick={handleStudentClicked} {...classroomRegistrationList}
                 />
               </div>
 
@@ -187,7 +216,7 @@ function RegistrationsTable() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            {error}
+              {error}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -216,14 +245,19 @@ function RegistrationsTable() {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => {
+              // call update status
+              callUpdatePaymentStatus(
+                confirmPayment.data.classroom.id,
+                confirmPayment.data.student.id
+              );
+              setConfirmPayment(null);
+            }} autoFocus>
+              Agree
+            </Button>
+            <Button onClick={() => {
               setConfirmPayment(null);
             }} autoFocus>
               Cancel
-            </Button>
-            <Button onClick={() => {
-              // call update status
-            }} autoFocus>
-              Agree
             </Button>
           </DialogActions>
         </Dialog> : <></>

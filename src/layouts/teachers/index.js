@@ -315,7 +315,7 @@ function TeachersTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>
-              <TextField id="email" name="email" fullWidth />
+              <TextField id="email" name="email" fullWidth type="email" />
             </Box>
             <DialogActions>
               <Button type="submit">Create</Button>
@@ -432,16 +432,18 @@ function TeachersTable() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
+          <Button onClick={() => {
+              callDeleteTeacher(confirmDelete.data.id);
+              setConfirmDelete(null);
+            }} autoFocus>
+              Agree
+            </Button>
             <Button onClick={() => {
               setConfirmDelete(null);
             }} autoFocus>
               Cancel
             </Button>
-            <Button onClick={() => {
-              callDeleteTeacher(confirmDelete.data.id);
-            }} autoFocus>
-              Agree
-            </Button>
+            
           </DialogActions>
         </Dialog> : <></>
       }

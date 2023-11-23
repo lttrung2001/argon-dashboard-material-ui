@@ -283,7 +283,7 @@ function StudentsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>
-              <TextField id="email" name="email" fullWidth />
+              <TextField id="email" name="email" fullWidth type="email" />
             </Box>
             <DialogActions>
               <Button type="submit">Create</Button>
@@ -347,7 +347,7 @@ function StudentsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>
-              <TextField id="email" name="email" fullWidth defaultValue={selectedStudent.email} />
+              <TextField id="email" name="email" fullWidth defaultValue={selectedStudent.email} type="email" />
             </Box>
             <DialogActions>
               <Button type="submit">Update</Button>
@@ -397,16 +397,18 @@ function StudentsTable() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
+          <Button onClick={() => {
+              callDeleteRoom(confirmDelete.data.id);
+              setConfirmDelete(null);
+            }} autoFocus>
+              Agree
+            </Button>
             <Button onClick={() => {
               setConfirmDelete(null);
             }} autoFocus>
               Cancel
             </Button>
-            <Button onClick={() => {
-              callDeleteRoom(confirmDelete.data.id);
-            }} autoFocus>
-              Agree
-            </Button>
+            
           </DialogActions>
         </Dialog> : <></>
       }

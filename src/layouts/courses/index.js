@@ -31,7 +31,7 @@ import coursesTableData from "layouts/courses/data/coursesTableData";
 import classroomsTableData from "layouts/courses/data/classroomsTableData";
 import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/Axios";
-import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
+import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Radio, RadioGroup, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "components/UploadFileButton";
@@ -182,6 +182,7 @@ function CoursesTable() {
     } finally {
       handleCloseCreateNewCoursePopup();
       handleCloseEditCoursePopup();
+      setConfirmDelete(null);
     }
   };
 
@@ -196,6 +197,7 @@ function CoursesTable() {
     } finally {
       handleCloseCreateNewClassroomPopup();
       handleCloseUpdateClassroomPopup();
+      setConfirmDelete(null);
     }
   };
 
@@ -390,6 +392,7 @@ function CoursesTable() {
       id: data.get("courseId"),
       name: data.get("courseName"),
       trainingTime: data.get("trainingTime"),
+      status: data.get("status"),
       tuition: data.get("tuition"),
       desc: data.get("description"),
       image: updateCourseImage ? updateCourseImage : null,
@@ -647,11 +650,15 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Training time (months)</Typography>
-              <TextField id="trainingTime" name="trainingTime" fullWidth />
+              <TextField id="trainingTime" name="trainingTime" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Tuition (VND)</Typography>
-              <TextField id="tuition" name="tuition" fullWidth />
+              <TextField id="tuition" name="tuition" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Description</Typography>
@@ -749,15 +756,33 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Training time (months)</Typography>
-              <TextField id="trainingTime" name="trainingTime" fullWidth defaultValue={selectedCourse.trainingTime} />
+              <TextField id="trainingTime" name="trainingTime" fullWidth defaultValue={selectedCourse.trainingTime} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Tuition (VND)</Typography>
-              <TextField id="tuition" name="tuition" fullWidth defaultValue={selectedCourse.tuition} />
+              <TextField id="tuition" name="tuition" fullWidth defaultValue={selectedCourse.tuition} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Description</Typography>
               <TextField id="description" name="description" fullWidth defaultValue={selectedCourse.desc} />
+            </Box>
+            <Box mx={2}>
+              <Typography>Status</Typography>
+            </Box>
+            <Box mx={3.5} my={1}>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="status"
+                defaultValue={selectedCourse.status}
+              >
+                <FormControlLabel value={true} control={<Radio />} label="Open" />
+                <FormControlLabel value={false} control={<Radio />} label="Close" />
+              </RadioGroup>
             </Box>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
               <Grid item>{customList(left)}</Grid>
@@ -865,11 +890,15 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Max student</Typography>
-              <TextField id="maxStudent" name="maxStudent" fullWidth />
+              <TextField id="maxStudent" name="maxStudent" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Min student</Typography>
-              <TextField id="minStudent" name="minStudent" fullWidth />
+              <TextField id="minStudent" name="minStudent" fullWidth type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Start date</Typography>
@@ -940,11 +969,15 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Max student</Typography>
-              <TextField id="maxStudent" name="maxStudent" fullWidth defaultValue={selectedClassroom.maxStudent} />
+              <TextField id="maxStudent" name="maxStudent" fullWidth defaultValue={selectedClassroom.maxStudent} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Min student</Typography>
-              <TextField id="minStudent" name="minStudent" fullWidth defaultValue={selectedClassroom.minStudent} />
+              <TextField id="minStudent" name="minStudent" fullWidth defaultValue={selectedClassroom.minStudent} type="number" inputProps={{
+            min: 0,
+          }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Start date</Typography>
@@ -1035,11 +1068,13 @@ function CoursesTable() {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => {
-              if (confirmDelete.ACTION_DELETE_COURSE) {
-                callDeleteCourse(confirmDelete.data);
-              } else if (confirm.ACTION_DELETE_CLASSROOM) {
-                callDeleteClassroom(confirmDelete.data)
+              if (confirmDelete.action == ACTION_DELETE_COURSE) {
+                console.log(confirmDelete.data);
+                callDeleteCourse(confirmDelete.data.id);
+              } else if (confirmDelete.action == ACTION_DELETE_CLASSROOM) {
+                callDeleteClassroom(confirmDelete.data.id)
               }
+              setConfirmDelete(null);
             }} autoFocus>
               Agree
             </Button>

@@ -21,16 +21,12 @@ export default () => {
     apiHelper.interceptors.request.use((config) => {
         config.baseURL = "http://localhost:8080/"
         const accessToken = localStorage.getItem(ACCESS_TOKEN);
-        console.log("ACCESS_TOKEN", accessToken);
         if (accessToken != null) {
             const decoded = jwtDecode(accessToken);
-            console.log("DECODED", decoded);
             if (decoded.exp && decoded.exp < Date.now() / 1000) {
                 throw Error(MESSAGE_INVALID_TOKEN)
             }
             config.headers.Authorization = `Bearer ${accessToken}`
-            console.log(`$ADD TOKEN: ${config.headers.Authorization}`)
-            console.log(config);
             return config
         }
         throw Error(MESSAGE_INVALID_TOKEN)
