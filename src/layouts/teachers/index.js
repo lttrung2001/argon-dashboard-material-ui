@@ -47,6 +47,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useDemoData } from '@mui/x-data-grid-generator';
 import RadioGroup from '@mui/material/RadioGroup';
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
+import { handleTextFieldNumberChange } from "layouts/courses";
 
 function TeachersTable() {
   const [error, setError] = React.useState();
@@ -68,6 +69,9 @@ function TeachersTable() {
       setTeachers(teachers);
     } catch (e) {
       setError(e.response.data.message);
+    } finally {
+      handleCloseCreateTeacherPopup();
+      handleCloseUpdateTeacherPopup();
     }
   };
 
@@ -133,8 +137,6 @@ function TeachersTable() {
     }
     console.log("DATA::");
     console.log(createTeacherData);
-
-    handleCloseCreateTeacherPopup();
     callCreateTeacher(createTeacherData);
   };
 
@@ -152,8 +154,6 @@ function TeachersTable() {
     }
     console.log("DATA::");
     console.log(updateTeacherData);
-
-    handleCloseUpdateTeacherPopup();
     callUpdateTeacher(updateTeacherData);
   };
 
@@ -311,7 +311,10 @@ function TeachersTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Phone number</Typography>
-              <TextField id="phoneNumber" name="phoneNumber" fullWidth />
+              <TextField id="phoneNumber" name="phoneNumber" fullWidth inputProps={{
+                onChange: handleTextFieldNumberChange,
+                maxLength: 10
+              }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>
@@ -375,7 +378,10 @@ function TeachersTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Phone number</Typography>
-              <TextField id="phoneNumber" name="phoneNumber" fullWidth defaultValue={selectedTeacher.phoneNumber} />
+              <TextField id="phoneNumber" name="phoneNumber" fullWidth defaultValue={selectedTeacher.phoneNumber} inputProps={{
+                onChange: handleTextFieldNumberChange,
+                maxLength: 10
+              }}/>
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>

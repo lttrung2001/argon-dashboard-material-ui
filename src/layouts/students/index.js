@@ -46,6 +46,7 @@ import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
 import RadioGroup from '@mui/material/RadioGroup';
+import { handleTextFieldNumberChange } from "layouts/courses";
 
 function StudentsTable() {
   const [error, setError] = React.useState();
@@ -279,7 +280,10 @@ function StudentsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Phone number</Typography>
-              <TextField id="phoneNumber" name="phoneNumber" fullWidth />
+              <TextField id="phoneNumber" name="phoneNumber" fullWidth inputProps={{
+                onChange: handleTextFieldNumberChange,
+                maxLength: 10
+              }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>
@@ -343,7 +347,10 @@ function StudentsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Phone number</Typography>
-              <TextField id="phoneNumber" name="phoneNumber" fullWidth defaultValue={selectedStudent.phoneNumber} />
+              <TextField id="phoneNumber" name="phoneNumber" fullWidth defaultValue={selectedStudent.phoneNumber} inputProps={{
+                onChange: handleTextFieldNumberChange,
+                maxLength: 10
+              }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Email</Typography>

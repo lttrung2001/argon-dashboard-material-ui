@@ -120,9 +120,10 @@ function ScoresTable() {
   const handleScoreBlur = (event) => {
     const input = event.target;
     const value = input.value;
+    const reg = new RegExp('^[0-9]+$');
     if (value > 10) {
       input.value = 10;
-    } else if (value < 0) {
+    } else if (!reg.test(value) || value < 0) {
       input.value = 0;
     }
   };

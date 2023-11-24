@@ -46,6 +46,7 @@ import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
+import { handleTextFieldNumberChange } from "layouts/courses";
 
 function SubjectsTable() {
   const [error, setError] = React.useState();
@@ -351,8 +352,9 @@ function SubjectsTable() {
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
               <TextField id="lessons" name="lessons" fullWidth type="number" inputProps={{
-            min: 0,
-          }} />
+                onChange: handleTextFieldNumberChange,
+                maxLength: 3
+              }} />
             </Box>
             <DialogActions>
               <Button type="submit">Create</Button>
@@ -413,8 +415,9 @@ function SubjectsTable() {
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
               <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} type="number" inputProps={{
-            min: 0,
-          }} />
+                onChange: handleTextFieldNumberChange,
+                maxLength: 3
+              }} />
             </Box>
             <DialogActions>
               <Button type="submit">Update</Button>

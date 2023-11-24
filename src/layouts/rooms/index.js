@@ -45,6 +45,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid } from "@mui/x-data-grid";
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
+import { handleTextFieldNumberChange } from "layouts/courses";
 
 function RoomsTable() {
   const [error, setError] = React.useState();
@@ -271,8 +272,10 @@ function RoomsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Capacity</Typography>
-              <TextField id="capacity" name="capacity" fullWidth type="number" inputProps={{
+              <TextField id="capacity" name="capacity" fullWidth inputProps={{
             min: 0,
+            maxLength: 3,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <DialogActions>
@@ -301,8 +304,10 @@ function RoomsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Capacity</Typography>
-              <TextField id="capacity" name="capacity" fullWidth defaultValue={selectedRoom.capacity} type="number" inputProps={{
+              <TextField id="capacity" name="capacity" fullWidth defaultValue={selectedRoom.capacity} inputProps={{
             min: 0,
+            maxLength: 3,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={3} my={1}>

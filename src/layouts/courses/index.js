@@ -44,6 +44,17 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
+export const handleTextFieldNumberChange = (event) => {
+  const input = event.target;
+  const value = input.value;
+  const reg = new RegExp('^[0-9]+$');
+  if (value === "") {
+    input.value = "";
+  } else if (!reg.test(value) || value < 0) {
+    input.value = 0;
+  } 
+};
+
 function CoursesTable() {
   //////////////////////////////////////// BEGIN TRANSFER LIST ////////////////////////////////////////
   function filterObjectsNotInListByProperty(arrOfObjects, listOfIds) {
@@ -370,6 +381,16 @@ function CoursesTable() {
 
   const handleCreateNewClassroom = (event) => {
     event.preventDefault();
+    if (!createClassroomCourseSelected) {
+      setError("Please select a course!");
+      return
+    } else if (!createClassroomTeacherSelected) {
+      setError("Please select a teacher!");
+      return
+    } else if (!createClassroomStartDateSelected) {
+      setError("Please choose start date!");
+      return
+    }
     const data = new FormData(event.currentTarget);
     const createClassroomData = {
       courseId: createClassroomCourseSelected.id,
@@ -408,6 +429,16 @@ function CoursesTable() {
 
   const handleUpdateClassroom = (event) => {
     event.preventDefault();
+    if (!updateClassroomCourseSelected) {
+      setError("Please select a course!");
+      return
+    } else if (!updateClassroomTeacherSelected) {
+      setError("Please select a teacher!");
+      return
+    } else if (!updateClassroomStartDateSelected) {
+      setError("Please choose start date!");
+      return
+    }
     const data = new FormData(event.currentTarget);
     const updateClassroomData = {
       classroomId: selectedClassroom.id,
@@ -650,14 +681,18 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Training time (months)</Typography>
-              <TextField id="trainingTime" name="trainingTime" fullWidth type="number" inputProps={{
-            min: 0,
+              <TextField id="trainingTime" name="trainingTime" fullWidth inputProps={{
+            min: 1,
+            maxLength: 2,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Tuition (VND)</Typography>
-              <TextField id="tuition" name="tuition" fullWidth type="number" inputProps={{
+              <TextField id="tuition" name="tuition" fullWidth inputProps={{
             min: 0,
+            maxLength: 2,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
@@ -756,13 +791,13 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Training time (months)</Typography>
-              <TextField id="trainingTime" name="trainingTime" fullWidth defaultValue={selectedCourse.trainingTime} type="number" inputProps={{
+              <TextField id="trainingTime" name="trainingTime" fullWidth defaultValue={selectedCourse.trainingTime} inputProps={{
             min: 0,
           }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Tuition (VND)</Typography>
-              <TextField id="tuition" name="tuition" fullWidth defaultValue={selectedCourse.tuition} type="number" inputProps={{
+              <TextField id="tuition" name="tuition" fullWidth defaultValue={selectedCourse.tuition} inputProps={{
             min: 0,
           }} />
             </Box>
@@ -890,14 +925,18 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Max student</Typography>
-              <TextField id="maxStudent" name="maxStudent" fullWidth type="number" inputProps={{
+              <TextField id="maxStudent" name="maxStudent" fullWidth inputProps={{
             min: 0,
+            maxLength: 3,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Min student</Typography>
-              <TextField id="minStudent" name="minStudent" fullWidth type="number" inputProps={{
+              <TextField id="minStudent" name="minStudent" fullWidth inputProps={{
             min: 0,
+            maxLength: 3,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
@@ -969,14 +1008,18 @@ function CoursesTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Max student</Typography>
-              <TextField id="maxStudent" name="maxStudent" fullWidth defaultValue={selectedClassroom.maxStudent} type="number" inputProps={{
+              <TextField id="maxStudent" name="maxStudent" fullWidth defaultValue={selectedClassroom.maxStudent} inputProps={{
             min: 0,
+            maxLength: 3,
+            handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
               <Typography>Min student</Typography>
-              <TextField id="minStudent" name="minStudent" fullWidth defaultValue={selectedClassroom.minStudent} type="number" inputProps={{
+              <TextField id="minStudent" name="minStudent" fullWidth defaultValue={selectedClassroom.minStudent} inputProps={{
             min: 0,
+            maxLength: 3,
+            onChange: handleTextFieldNumberChange
           }} />
             </Box>
             <Box mx={2} my={1}>
