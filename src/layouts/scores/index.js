@@ -43,8 +43,16 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { DataGrid, GridEditInputCell } from "@mui/x-data-grid";
+import { DataGrid, GridEditInputCell, GridToolbar, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
 import { useDemoData } from '@mui/x-data-grid-generator';
+
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+}
 
 function ScoresTable() {
   const changedMap = new Map();
@@ -72,7 +80,6 @@ function ScoresTable() {
         classroomId: selectedClassroom.id,
         subjectId: classroomSubject.subject.id
       };
-      console.log(requestData);
       const response = await apiHelper().post(`/scores`, requestData);
       const scores = response.data;
       setScores(scores);
@@ -111,7 +118,6 @@ function ScoresTable() {
   };
 
   const handleScoreBlur = (event) => {
-    console.log(event);
     const input = event.target;
     const value = input.value;
     if (value > 10) {
@@ -123,8 +129,11 @@ function ScoresTable() {
 
   const processRowUpdate = (newRow) => {
     const newScore = { ...newRow };
-    changedMap.set(newScore.student.id, newScore.score);
-    console.log(changedMap);
+    changedMap.set(newScore.student.id, {
+      score1: newScore.score1,
+      score2: newScore.score2,
+      score3: newScore.score3
+    });
     return newScore;
   };
 
@@ -141,7 +150,7 @@ function ScoresTable() {
     { field: "student.id", headerName: "Student ID", flex: 1, valueGetter: (params) => params.row?.student.id },
     { field: "student.fullName", headerName: "Fullname", flex: 1, valueGetter: (params) => params.row?.student.fullName },
     {
-      field: "score", headerName: "Score", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      field: "score1", headerName: "Score 1", flex: 1, editable: true, type: 'number', max: 10, min: 0,
       renderEditCell: (params) => (
         <GridEditInputCell
           {...params}
@@ -153,7 +162,52 @@ function ScoresTable() {
         />
       )
     },
+    {
+      field: "score2", headerName: "Score 2", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      renderEditCell: (params) => (
+        <GridEditInputCell
+          {...params}
+          inputProps={{
+            max: 10,
+            min: 0,
+            onChange: handleScoreBlur
+          }}
+        />
+      )
+    },
+    {
+      field: "score3", headerName: "Score 3", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      renderEditCell: (params) => (
+        <GridEditInputCell
+          {...params}
+          inputProps={{
+            max: 10,
+            min: 0,
+            onChange: handleScoreBlur
+          }}
+        />
+      )
+    },
+    {
+      field: "average", headerName: "Avg", flex: 1, editable: false, type: 'number', max: 10, min: 0, valueGetter: (params) => calculateAvg(params.row),
+      renderEditCell: (params) => (
+        <GridEditInputCell
+          {...params}
+          inputProps={{
+            max: 10,
+            min: 0,
+          }}
+        />
+      )
+    },
   ]
+
+  const calculateAvg = (scores) => {
+    const a = scores.score1 * (scores.classroom.rate1 / 100);
+    const b = scores.score2 * (scores.classroom.rate2 / 100);
+    const c = scores.score3 * (scores.classroom.rate3 / 100);
+    return a + b + c;
+  };
 
   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: 25,
@@ -173,7 +227,6 @@ function ScoresTable() {
                 onChange={(event, newValue) => {
                   if (newValue) {
                     setSelectedClassroom(newValue);
-                    // setSelectedClassroomSubject(null);
                     setScores([]);
                     changedMap.clear();
                   }
@@ -186,7 +239,6 @@ function ScoresTable() {
                 renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
               <Autocomplete
-                key={selectedClassroomSubject}
                 onChange={(event, newValue) => {
                   if (newValue) {
                     setSelectedClassroomSubject(newValue);
@@ -225,6 +277,7 @@ function ScoresTable() {
                     return `${row.student.id}|${row.classroom.id}`
                   }}
                   processRowUpdate={processRowUpdate}
+                  slots={{ toolbar: CustomToolbar }}
                 // onRowClick={handleTeacherClicked} {...classrooms}
                 />
               </div>
