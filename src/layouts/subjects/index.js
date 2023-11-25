@@ -351,7 +351,7 @@ function SubjectsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
-              <TextField id="lessons" name="lessons" fullWidth type="number" inputProps={{
+              <TextField id="lessons" name="lessons" fullWidth inputProps={{
                 onChange: handleTextFieldNumberChange,
                 maxLength: 3
               }} />
@@ -414,7 +414,7 @@ function SubjectsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
-              <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} type="number" inputProps={{
+              <TextField id="lessons" name="lessons" fullWidth defaultValue={selectedSubject.lessons} inputProps={{
                 onChange: handleTextFieldNumberChange,
                 maxLength: 3
               }} />

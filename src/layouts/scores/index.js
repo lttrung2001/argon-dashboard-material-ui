@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded, UpdateRounded } from "@mui/icons-material";
@@ -45,6 +45,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridEditInputCell, GridToolbar, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
 import { useDemoData } from '@mui/x-data-grid-generator';
+import { useNavigate } from "react-router-dom";
 
 function CustomToolbar() {
   return (
@@ -63,12 +64,22 @@ function ScoresTable() {
   const [scores, setScores] = React.useState([]);
   const [selectedClassroom, setSelectedClassroom] = React.useState();
   const [selectedClassroomSubject, setSelectedClassroomSubject] = React.useState();
+  const navigator = useNavigate();
 
   const callGetClassrooms = async () => {
     try {
-      const response = await apiHelper().get(`/classrooms`);
-      const classrooms = response.data;
+      apiHelper().get(`/classrooms`).then((response) => {
+        const classrooms = response.data;
       setClassrooms(classrooms);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -80,9 +91,18 @@ function ScoresTable() {
         classroomId: selectedClassroom.id,
         subjectId: classroomSubject.subject.id
       };
-      const response = await apiHelper().post(`/scores`, requestData);
-      const scores = response.data;
-      setScores(scores);
+      apiHelper().post(`/scores`, requestData).then((response) => {
+        const scores = response.data;
+        setScores(scores);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -96,10 +116,19 @@ function ScoresTable() {
         scores: Object.fromEntries(changedMap)
       };
       console.log(requestData);
-      await apiHelper().post(`/scores/update`, requestData);
-      changedMap.clear();
-      callGetScores(selectedClassroomSubject);
-      setMessage("Update scores successful!");
+      apiHelper().post(`/scores/update`, requestData).then((response) => {
+        changedMap.clear();
+        callGetScores(selectedClassroomSubject);
+        setMessage("Update scores successful!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }

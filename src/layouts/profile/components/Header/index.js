@@ -37,7 +37,7 @@ import breakpoints from "assets/theme/base/breakpoints";
 import burceMars from "assets/images/bruce-mars.jpg";
 
 import React from "react";
-import apiHelper from "../../../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -83,13 +83,22 @@ function Header() {
 
   const callGetProfile = async () => {
     try {
-      const response = await apiHelper().get("/teachers/profile");
-      const teacher = response.data;
-      setProfile(teacher);
+      apiHelper().get("/teachers/profile").then((response) => {
+        const teacher = response.data;
+        setProfile(teacher);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
-  };
+  }
 
   const callChangePassword = async (requestData) => {
     try {

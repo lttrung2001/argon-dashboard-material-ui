@@ -26,7 +26,7 @@ import ArgonBox from "components/ArgonBox";
 import ArgonTypography from "components/ArgonTypography";
 import ArgonInput from "components/ArgonInput";
 import ArgonButton from "components/ArgonButton";
-import apiHelper, { ACCESS_TOKEN, ROLE, apiHelperPublic } from "../../../utils/Axios";
+import apiHelper, { ACCESS_TOKEN, MESSAGE_INVALID_TOKEN, ROLE, SERVICE_UNAVAILABLE, apiHelperPublic } from "../../../utils/Axios";
 
 // Authentication layout components
 import IllustrationLayout from "layouts/authentication/components/IllustrationLayout";
@@ -52,13 +52,19 @@ function Illustration() {
 
   const callLogin = async (loginData) => {
     try {
-    const response = await apiHelperPublic().post("/auth/login", loginData);
-    const token = response.data.token;
-    const role = jwtDecode(token).role;
-    localStorage.setItem(ROLE, role);
-    localStorage.setItem(ACCESS_TOKEN, token);
-    navigator("/");
-    navigator(0);
+    apiHelperPublic().post("/auth/login", loginData).then((response) => {
+      const token = response.data.token;
+      const role = jwtDecode(token).role;
+      localStorage.setItem(ROLE, role);
+      localStorage.setItem(ACCESS_TOKEN, token);
+      navigator(0);
+    }, (e) => {
+      if (e.message == MESSAGE_INVALID_TOKEN) {
+        navigator("/authentication/sign-in");
+      } else {
+        setError(SERVICE_UNAVAILABLE);
+      }
+    });
     } catch(e) {
       setError(e.response.data.message);
     }

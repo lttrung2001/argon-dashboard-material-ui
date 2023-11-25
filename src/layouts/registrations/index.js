@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, IconButton, Input, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -45,21 +45,31 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
+import { useNavigate } from "react-router-dom";
 
 function RegistrationsTable() {
   const [error, setError] = React.useState();
   const [classroomRegistrationList, setClassroomRegistrationList] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
   const [confirmPayment, setConfirmPayment] = React.useState();
+  const navigator = useNavigate();
 
   const callGetClassrooms = async () => {
     try {
-      const response = await apiHelper().get(`/classrooms`);
-      const data = response.data;
-      setClassrooms(data);
-      if (Array.from(data).length > 0) {
-        handleShowStudentList(data[0]);
-      }
+      apiHelper().get(`/classrooms`).then((response) => {
+        const data = response.data;
+        setClassrooms(data);
+        if (Array.from(data).length > 0) {
+          handleShowStudentList(data[0]);
+        }
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -68,9 +78,17 @@ function RegistrationsTable() {
 
   const callGetStudents = async (classroomId) => {
     try {
-      const response = await apiHelper().get(`/registrations?classroomId=${classroomId}`);
-      const registrations = response.data;
-      setClassroomRegistrationList(registrations);
+      apiHelper().get(`/registrations?classroomId=${classroomId}`).then((response) => {
+        const registrations = response.data;
+        setClassroomRegistrationList(registrations);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -83,8 +101,17 @@ function RegistrationsTable() {
         classroomId: classroomId,
         studentId: studentId
       };
-      await apiHelper().put(`/registrations/update`, requestData);
-      callGetStudents(classroomId);
+      apiHelper().put(`/registrations/update`, requestData).then((response) => {
+        callGetStudents(classroomId);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     } finally {
@@ -239,9 +266,21 @@ function RegistrationsTable() {
             {"Notification"}
           </DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {confirmPayment.message}
+            <DialogContentText id="alert-dialog-description" mb={3}>
+              <ArgonTypography variant="h5">{confirmPayment.message}</ArgonTypography>
             </DialogContentText>
+            <Box>
+              <ArgonTypography variant="h6">Course info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${confirmPayment.data.classroom.course.id} | ${confirmPayment.data.classroom.course.name}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Classroom info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${confirmPayment.data.classroom.id} | ${confirmPayment.data.classroom.name}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Tuition</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${confirmPayment.data.tuition} VND`} />
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => {

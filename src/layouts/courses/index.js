@@ -30,7 +30,7 @@ import Table from "examples/Tables/Table";
 import coursesTableData from "layouts/courses/data/coursesTableData";
 import classroomsTableData from "layouts/courses/data/classroomsTableData";
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Radio, RadioGroup, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -43,6 +43,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
+import { useNavigate } from "react-router-dom";
 
 export const handleTextFieldNumberChange = (event) => {
   const input = event.target;
@@ -182,45 +183,69 @@ function CoursesTable() {
   const [updateClassroomTeacherSelected, setUpdateClassroomTeacherSelected] = React.useState();
   const [updateClassroomStartDateSelected, setUpdateClassroomStartDateSelected] = React.useState();
 
+  const navigator = useNavigate();
+
   const callGetCourses = async () => {
     try {
-      const response = await apiHelper().get("/courses");
-      const courses = response.data;
-      setOriginCourses(courses);
-      setCourses(courses);
+      apiHelper().get("/courses").then((response) => {
+        const courses = response.data;
+        setOriginCourses(courses);
+        setCourses(courses);
+        handleCloseCreateNewCoursePopup();
+        handleCloseEditCoursePopup();
+        setConfirmDelete(null);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseCreateNewCoursePopup();
-      handleCloseEditCoursePopup();
-      setConfirmDelete(null);
     }
   };
 
   const callGetClassrooms = async () => {
     try {
-      const response = await apiHelper().get("/classrooms");
-      const classrooms = response.data;
-      setOriginClassrooms(classrooms);
-      setClassrooms(classrooms);
+      apiHelper().get("/classrooms").then((response) => {
+        const classrooms = response.data;
+        setOriginClassrooms(classrooms);
+        setClassrooms(classrooms);
+        handleCloseCreateNewClassroomPopup();
+        handleCloseUpdateClassroomPopup();
+        setConfirmDelete(null);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
-    } finally {
-      handleCloseCreateNewClassroomPopup();
-      handleCloseUpdateClassroomPopup();
-      setConfirmDelete(null);
     }
   };
 
   const callCreateCourse = async (createCourseData) => {
     try {
-      await apiHelper().post("/courses/create", createCourseData, {
+      apiHelper().post("/courses/create", createCourseData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
+      }).then((response) => {
+        callGetCourses();
+        setConfirm("Create course successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
       });
-      callGetCourses();
-      setConfirm("Create course successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -228,13 +253,21 @@ function CoursesTable() {
 
   const callEditCourse = async (editCourseData) => {
     try {
-      await apiHelper().put("/courses/update", editCourseData, {
+      apiHelper().put("/courses/update", editCourseData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
+      }).then((response) => {
+        callGetCourses();
+        setConfirm("Update course successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
       });
-      callGetCourses();
-      setConfirm("Update course successfully!");
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -242,9 +275,17 @@ function CoursesTable() {
 
   const callDeleteCourse = async (courseId) => {
     try {
-      await apiHelper().delete(`/courses/delete?courseId=${courseId}`);
-      callGetCourses();
-      setConfirm("Delete course successfully!");
+      apiHelper().delete(`/courses/delete?courseId=${courseId}`).then((response) => {
+        callGetCourses();
+        setConfirm("Delete course successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -252,9 +293,17 @@ function CoursesTable() {
 
   const callGetSubjects = async () => {
     try {
-      const response = await apiHelper().get(`/subjects`);
-      const subjects = response.data;
-      setSubjects(subjects);
+      apiHelper().get(`/subjects`).then((response) => {
+        const subjects = response.data;
+        setSubjects(subjects);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -262,9 +311,17 @@ function CoursesTable() {
 
   const callGetTeachers = async () => {
     try {
-      const response = await apiHelper().get(`/teachers`);
-      const teachers = response.data;
-      setTeachers(teachers);
+      await apiHelper().get(`/teachers`).then((response) => {
+        const teachers = response.data;
+        setTeachers(teachers);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -272,9 +329,17 @@ function CoursesTable() {
 
   const callCreateClassroom = async (createClassroomData) => {
     try {
-      await apiHelper().post("/classrooms/create", createClassroomData);
-      callGetClassrooms();
-      setConfirm("Create classroom successfully!");
+      apiHelper().post("/classrooms/create", createClassroomData).then((response) => {
+        callGetClassrooms();
+        setConfirm("Create classroom successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -282,9 +347,17 @@ function CoursesTable() {
 
   const callUpdateClassroom = async (updateClassroomData) => {
     try {
-      await apiHelper().put("/classrooms/update", updateClassroomData);
-      callGetClassrooms();
-      setConfirm("Update classroom successfully!");
+      apiHelper().put("/classrooms/update", updateClassroomData).then((response) => {
+        callGetClassrooms();
+        setConfirm("Update classroom successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -292,9 +365,17 @@ function CoursesTable() {
 
   const callDeleteClassroom = async (classroomId) => {
     try {
-      await apiHelper().delete(`/classrooms/delete?classroomId=${classroomId}`);
-      callGetClassrooms();
-      setConfirm("Delete classroom successfully!");
+      apiHelper().delete(`/classrooms/delete?classroomId=${classroomId}`).then((response) => {
+        callGetClassrooms();
+        setConfirm("Delete classroom successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -691,7 +772,6 @@ function CoursesTable() {
               <Typography>Tuition (VND)</Typography>
               <TextField id="tuition" name="tuition" fullWidth inputProps={{
             min: 0,
-            maxLength: 2,
             onChange: handleTextFieldNumberChange
           }} />
             </Box>

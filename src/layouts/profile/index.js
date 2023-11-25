@@ -53,7 +53,7 @@ const bgImage =
   "https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg";
 
 import React, { useEffect, useState } from "react";
-import apiHelper, { MANAGER_ROLE, ROLE } from "../../utils/Axios";
+import apiHelper, { MANAGER_ROLE, MESSAGE_INVALID_TOKEN, ROLE, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -63,18 +63,29 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+import { useNavigate } from "react-router-dom";
 
 function Overview() {
 
   const [profile, setProfile] = useState();
   const [classroomSubjects, setClassroomSubjects] = useState([]);
   const [error, setError] = useState();
+  const navigator = useNavigate();
 
   const callGetProfile = async () => {
     try {
-      const response = await apiHelper().get("/teachers/profile");
-      const teacher = response.data;
-      setProfile(teacher);
+      apiHelper().get("/teachers/profile").then((response) => {
+        const teacher = response.data;
+        setProfile(teacher);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }

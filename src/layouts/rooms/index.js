@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -46,6 +46,7 @@ import Paper from '@mui/material/Paper';
 import { DataGrid } from "@mui/x-data-grid";
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
 import { handleTextFieldNumberChange } from "layouts/courses";
+import { useNavigate } from "react-router-dom";
 
 function RoomsTable() {
   const [error, setError] = React.useState();
@@ -54,25 +55,43 @@ function RoomsTable() {
   const [rooms, setRooms] = React.useState([]);
   const [showCreateRoomDialog, setShowCreateRoomDialog] = React.useState();
   const [selectedRoom, setSelectedRoom] = React.useState();
+  const navigator = useNavigate();
 
   const callGetRooms = async () => {
     try {
-      const response = await apiHelper().get(`/rooms`);
-      const rooms = response.data;
-      setRooms(rooms);
+      apiHelper().get(`/rooms`).then((response) => {
+        const rooms = response.data;
+        setRooms(rooms);
+        handleCloseCreateRoomPopup();
+        handleCloseUpdateRoomPopup();
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     } finally {
-      handleCloseCreateRoomPopup();
-      handleCloseUpdateRoomPopup();
+      
     }
   };
 
   const callCreateRoom = async (data) => {
     try {
-      await apiHelper().post("/rooms/create", data);
-      callGetRooms();
-      setConfirm("Create room successfully!");
+      apiHelper().post("/rooms/create", data).then((response) => {
+        callGetRooms();
+        setConfirm("Create room successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -80,9 +99,17 @@ function RoomsTable() {
 
   const callUpdateRoom = async (data) => {
     try {
-      await apiHelper().put("/rooms/update", data);
-      callGetRooms();
-      setConfirm("Update room successfully!");
+      apiHelper().put("/rooms/update", data).then((response) => {
+        callGetRooms();
+        setConfirm("Update room successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -90,10 +117,19 @@ function RoomsTable() {
 
   const callDeleteRoom = async (id) => {
     try {
-      await apiHelper().delete(`/rooms/delete?roomId=${id}`);
-      setSelectedRoom(null);
-      callGetRooms();
-      setConfirm("Delete room successfully!");
+      apiHelper().delete(`/rooms/delete?roomId=${id}`).then((response) => {
+        setSelectedRoom(null);
+        callGetRooms();
+        setConfirm("Delete room successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }

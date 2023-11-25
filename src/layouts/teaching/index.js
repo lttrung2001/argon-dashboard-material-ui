@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Grid, IconButton, Input, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -45,25 +45,35 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
+import { useNavigate } from "react-router-dom";
 
 function TeachingTable() {
   const [error, setError] = React.useState();
   const [students, setStudents] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
+  const navigator = useNavigate();
 
   const callGetTeachingClassrooms = async () => {
     try {
-      const response = await apiHelper().get(`/classroom-subject/teaching`);
-      const idList = [];
-      const classroomList = [];
-      Array.from(response.data).forEach((item) => {
-        const classroom = item.classroom;
-        if (!idList.includes(classroom.id)) {
-          idList.push(classroom.id);
-          classroomList.push(classroom);
+      apiHelper().get(`/classroom-subject/teaching`).then((response) => {
+        const idList = [];
+        const classroomList = [];
+        Array.from(response.data).forEach((item) => {
+          const classroom = item.classroom;
+          if (!idList.includes(classroom.id)) {
+            idList.push(classroom.id);
+            classroomList.push(classroom);
+          }
+        });
+        setClassrooms(classroomList);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
         }
       });
-      setClassrooms(classroomList);
     } catch (e) {
       setError(e.response.data.message);
     } finally {

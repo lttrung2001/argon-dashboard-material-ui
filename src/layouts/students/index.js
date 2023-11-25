@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, IconButton, Input, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -47,6 +47,7 @@ import { DataGrid, GridDeleteIcon, GridViewColumnIcon } from "@mui/x-data-grid";
 import InfoIcon from '@mui/icons-material/Info';
 import RadioGroup from '@mui/material/RadioGroup';
 import { handleTextFieldNumberChange } from "layouts/courses";
+import { useNavigate } from "react-router-dom";
 
 function StudentsTable() {
   const [error, setError] = React.useState();
@@ -57,25 +58,45 @@ function StudentsTable() {
   const [selectedStudent, setSelectedStudent] = React.useState();
   const [createDob, setCreateDob] = React.useState();
   const [updateDob, setUpdateDob] = React.useState();
+  const navigator = useNavigate();
 
   const callGetStudents = async () => {
     try {
-      const response = await apiHelper().get(`/students`);
+    apiHelper().get(`/students`).then((response) => {
       const students = response.data;
       setStudents(students);
+      handleCloseCreatePopup();
+      handleCloseUpdatePopup();
+    }, (e) => {
+      if (e.message == MESSAGE_INVALID_TOKEN) {
+        localStorage.clear();
+        navigator("/authentication/sign-in");
+      } else {
+        setError(SERVICE_UNAVAILABLE);
+      }
+    });
+      
     } catch (e) {
       setError(e.response.data.message);
     } finally {
-      handleCloseCreatePopup();
-      handleCloseUpdatePopup();
+      
     }
   };
 
   const callCreateStudent = async (data) => {
     try {
-      await apiHelper().post("/students/create", data);
-      callGetStudents();
-      setConfirm("Create student successfully!");
+      apiHelper().post("/students/create", data).then((response) => {
+        callGetStudents();
+        setConfirm("Create student successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -83,9 +104,18 @@ function StudentsTable() {
 
   const callUpdateStudent = async (data) => {
     try {
-      await apiHelper().put("/students/update", data);
-      callGetStudents();
-      setConfirm("Update student successfully!");
+      apiHelper().put("/students/update", data).then((response) => {
+        callGetStudents();
+        setConfirm("Update student successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }

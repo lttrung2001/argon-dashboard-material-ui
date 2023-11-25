@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // react-routers components
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // prop-types is library for typechecking of props
 import PropTypes from "prop-types";
@@ -34,7 +34,7 @@ import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, TextField, Typography, selectClasses } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -48,12 +48,22 @@ import dayjs, { Dayjs } from 'dayjs';
 function ProfileInfoCard({ title, description, info, social, action }) {
   const [profile, setProfile] = useState();
   const [error, setError] = useState();
+  const navigator = useNavigate();
 
   const callGetProfile = async () => {
     try {
-      const response = await apiHelper().get("/teachers/profile");
-      const teacher = response.data;
-      setProfile(teacher);
+      apiHelper().get("/teachers/profile").then((response) => {
+        const teacher = response.data;
+        setProfile(teacher);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }

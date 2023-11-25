@@ -26,7 +26,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 import React, { useEffect, useState } from "react";
-import apiHelper from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { Autocomplete, Box, Button, CardMedia, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormControlLabel, Grid, Input, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, Select, TextField, Typography } from "@mui/material";
 import { DialogTitle } from '@mui/material';
 import { CloudUploadRounded } from "@mui/icons-material";
@@ -48,6 +48,7 @@ import { useDemoData } from '@mui/x-data-grid-generator';
 import RadioGroup from '@mui/material/RadioGroup';
 import ConfirmDeleteData from "utils/ConfirmDeleteData";
 import { handleTextFieldNumberChange } from "layouts/courses";
+import { useNavigate } from "react-router-dom";
 
 function TeachersTable() {
   const [error, setError] = React.useState();
@@ -58,28 +59,48 @@ function TeachersTable() {
   const [selectedTeacher, setSelectedTeacher] = React.useState();
   const [createTeacherDobSelected, setCreateTeacherDobSelected] = React.useState();
   const [updateTeacherDobSelected, setUpdateTeacherDobSelected] = React.useState();
+  const navigator = useNavigate();
 
   const callGetTeachers = async () => {
     try {
-      const response = await apiHelper().get(`/teachers`);
-      const teachers = response.data.map((teacher) => {
-        teacher.dob = dayjs(teacher.dob).format("DD/MM/YYYY")
-        return teacher;
+      await apiHelper().get(`/teachers`).then((response) => {
+        const teachers = response.data.map((teacher) => {
+          teacher.dob = dayjs(teacher.dob).format("DD/MM/YYYY")
+          return teacher;
+        });
+        setTeachers(teachers);
+        handleCloseCreateTeacherPopup();
+        handleCloseUpdateTeacherPopup();
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
       });
-      setTeachers(teachers);
+      
     } catch (e) {
       setError(e.response.data.message);
     } finally {
-      handleCloseCreateTeacherPopup();
-      handleCloseUpdateTeacherPopup();
+      
     }
   };
 
   const callCreateTeacher = async (data) => {
     try {
-      await apiHelper().post("/teachers/create", data);
-      callGetTeachers();
-      setConfirm("Create teacher successfully!");
+      apiHelper().post("/teachers/create", data).then((response) => {
+        callGetTeachers();
+        setConfirm("Create teacher successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -87,9 +108,18 @@ function TeachersTable() {
 
   const callUpdateTeacher = async (data) => {
     try {
-      await apiHelper().put("/teachers/update", data);
-      callGetTeachers();
-      setConfirm("Update teacher successfully!");
+      apiHelper().put("/teachers/update", data).then((response) => {
+        callGetTeachers();
+        setConfirm("Update teacher successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
@@ -97,10 +127,19 @@ function TeachersTable() {
 
   const callDeleteTeacher = async (teacherId) => {
     try {
-      await apiHelper().delete(`/teachers/delete?teacherId=${teacherId}`);
-      setSelectedTeacher(null);
-      callGetTeachers();
-      setConfirm("Delete teacher successfully!");
+      apiHelper().delete(`/teachers/delete?teacherId=${teacherId}`).then((response) => {
+        setSelectedTeacher(null);
+        callGetTeachers();
+        setConfirm("Delete teacher successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+      
     } catch (e) {
       setError(e.response.data.message);
     }
