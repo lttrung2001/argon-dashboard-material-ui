@@ -12,6 +12,10 @@
     "url": "git+https://github.com/creativetimofficial/argon-dashboard-material-ui.git"
   },
   "dependencies": {
+    "@devexpress/dx-core": "^4.0.6",
+    "@devexpress/dx-react-core": "^4.0.6",
+    "@devexpress/dx-react-scheduler": "^4.0.6",
+    "@devexpress/dx-react-scheduler-material-ui": "^4.0.6",
     "@emotion/cache": "11.11.0",
     "@emotion/react": "11.11.0",
     "@emotion/styled": "11.11.0",

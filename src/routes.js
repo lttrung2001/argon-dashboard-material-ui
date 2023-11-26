@@ -143,6 +143,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
       },
       {
         type: "route",
+        name: "Scheduling",
+        key: "scheduling",
+        route: "/scheduling",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <SchedulingScreen />,
+      },
+      {
+        type: "route",
         name: "Billing",
         key: "billing",
         route: "/billing",
