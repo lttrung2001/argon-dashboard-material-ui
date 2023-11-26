@@ -28,6 +28,7 @@ const SchedulingScreen = () => {
     const [classrooms, setClassrooms] = React.useState([]);
     const [openDialog, setOpenDialog] = React.useState();
     const [selectedList, setSelectedList] = React.useState([]);
+    const [schedules, setSchedules] = React.useState([]);
     const navigator = useNavigate();
 
     const [paginationModel, setPaginationModel] = React.useState({
@@ -63,6 +64,7 @@ const SchedulingScreen = () => {
         try {
             apiHelper().post("/timetables/generate", requestData).then((response) => {
                 callGetNotArrangedClassrooms();
+                callGetAllSchedule();
                 setConfirm("Generate timetable successfully!");
             }, (e) => {
             if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -76,6 +78,41 @@ const SchedulingScreen = () => {
             setError(e.response.data.message);
         }
     }
+
+    const callGetAllSchedule = () => {
+      try {
+          apiHelper().get("/timetables").then((response) => {
+            const mappedData = Array.from(response.data.schedules).map((item) => {
+              const tmpItem = {
+                title: item.subject.name,
+                date: dayjs(item.date).format("YYYY-MM-DD"),
+                period: item.period,
+                data: item
+              };
+              return tmpItem;
+            });
+            console.log(mappedData);
+            setSchedules(mappedData);
+          }, (e) => {
+          if (e.message == MESSAGE_INVALID_TOKEN) {
+              localStorage.clear();
+              navigator("/authentication/sign-in");
+              } else {
+              setError(SERVICE_UNAVAILABLE);
+              }
+          })
+      } catch (e) {
+          setError(e.response.data.message);
+      }
+  }
+
+  const getPeriodName = (period) => {
+    if (period === 0) {
+      return "Morning";
+    } else {
+      return "Afternoon";
+    }
+  }
 
     const handleGenerateTimetable = () => {
         if (selectedList.length === 0) {
@@ -102,6 +139,7 @@ const SchedulingScreen = () => {
 
     useEffect(() => {
         callGetNotArrangedClassrooms();
+        callGetAllSchedule();
     }, []);
 
     return (
@@ -133,19 +171,23 @@ const SchedulingScreen = () => {
                             <FullCalendar
                                 plugins={[dayGridPlugin]}
                                 initialView="dayGridMonth"
-                                events={[
-                                    { title: 'khoa hoc lap trinh android 3', date: '2023-11-26', period: 0 },
-                                    { title: 'khoa hoc lap trinh android 1', date: '2023-11-26', period: 0 },
-                                    { title: 'khoa hoc lap trinh android 2', date: '2023-11-26', period: 1 }
-                                  ]}
+                                events={schedules}
+                                // events={[
+                                //     { title: 'khoa hoc lap trinh android 3', date: '2023-11-26', period: 0 },
+                                //     { title: 'khoa hoc lap trinh android 1', date: '2023-11-26', period: 0 },
+                                //     { title: 'khoa hoc lap trinh android 2', date: '2023-11-26', period: 1 }
+                                //   ]}
                                   eventOrder={"extendedProps.period"}
                                 eventClick={(info) => {
                                     console.log(info.event._def);
                                     setSelectedEvent({
                                         title: info.event._def.title,
                                         date: dayjs(info.event._instance.range.start).format("DD/MM/YYYY"),
-                                        period: info.event._def.extendedProps.period
+                                        data: info.event._def.extendedProps.data
                                     })
+                                }}
+                                eventChange={(event) => {
+                                  console.log(event);
                                 }}
                             />
                         </ArgonBox>
@@ -217,31 +259,31 @@ const SchedulingScreen = () => {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Notification"}
+            {"Schedule details"}
           </DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description" mb={3}>
+            {/* <DialogContentText id="alert-dialog-description" mb={3}>
               <ArgonTypography variant="h5">Schedule details</ArgonTypography>
-            </DialogContentText>
+            </DialogContentText> */}
             <Box>
               <ArgonTypography variant="h6">Course info</ArgonTypography>
-              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.data.classroom.course.id} | ${selectedEvent.data.classroom.course.name}`} />
             </Box>
             <Box>
               <ArgonTypography variant="h6">Classroom info</ArgonTypography>
-              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.data.classroom.id} | ${selectedEvent.data.classroom.name}`} />
             </Box>
             <Box>
               <ArgonTypography variant="h6">Subject info</ArgonTypography>
-              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.data.subject.id} | ${selectedEvent.data.subject.name}`} />
             </Box>
             <Box>
               <ArgonTypography variant="h6">Room info</ArgonTypography>
-              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.data.room.id} | ${selectedEvent.data.room.name}`} />
             </Box>
             <Box>
               <ArgonTypography variant="h6">Period</ArgonTypography>
-              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.period}`} />
+              <TextField fullWidth disabled defaultValue={getPeriodName(selectedEvent.data.period)} />
             </Box>
           </DialogContent>
           <DialogActions>
