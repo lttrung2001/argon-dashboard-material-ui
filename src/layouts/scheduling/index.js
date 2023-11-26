@@ -13,16 +13,18 @@ import ArgonTypography from "components/ArgonTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { DialogContentText } from '@mui/material';
 import { useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
+import dayjs from 'dayjs';
 
 const SchedulingScreen = () => {
     const [error, setError] = React.useState();
     const [confirm, setConfirm] = React.useState();
+    const [selectedEvent, setSelectedEvent] = React.useState();
     const [classrooms, setClassrooms] = React.useState([]);
     const [openDialog, setOpenDialog] = React.useState();
     const [selectedList, setSelectedList] = React.useState([]);
@@ -131,6 +133,20 @@ const SchedulingScreen = () => {
                             <FullCalendar
                                 plugins={[dayGridPlugin]}
                                 initialView="dayGridMonth"
+                                events={[
+                                    { title: 'khoa hoc lap trinh android 3', date: '2023-11-26', period: 0 },
+                                    { title: 'khoa hoc lap trinh android 1', date: '2023-11-26', period: 0 },
+                                    { title: 'khoa hoc lap trinh android 2', date: '2023-11-26', period: 1 }
+                                  ]}
+                                  eventOrder={"extendedProps.period"}
+                                eventClick={(info) => {
+                                    console.log(info.event._def);
+                                    setSelectedEvent({
+                                        title: info.event._def.title,
+                                        date: dayjs(info.event._instance.range.start).format("DD/MM/YYYY"),
+                                        period: info.event._def.extendedProps.period
+                                    })
+                                }}
                             />
                         </ArgonBox>
 
@@ -186,6 +202,53 @@ const SchedulingScreen = () => {
           <DialogActions>
             <Button onClick={handleCloseConfirmDialog} autoFocus>
               Agree
+            </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        selectedEvent ? <Dialog
+        fullWidth
+          open={selectedEvent}
+          onClose={() => {
+            setSelectedEvent(null);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Notification"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description" mb={3}>
+              <ArgonTypography variant="h5">Schedule details</ArgonTypography>
+            </DialogContentText>
+            <Box>
+              <ArgonTypography variant="h6">Course info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Classroom info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Subject info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Room info</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.title}`} />
+            </Box>
+            <Box>
+              <ArgonTypography variant="h6">Period</ArgonTypography>
+              <TextField fullWidth disabled defaultValue={`${selectedEvent.date} | ${selectedEvent.period}`} />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+          <Button onClick={() => {
+            setSelectedEvent(null);
+          }} autoFocus>
+              Close
             </Button>
           </DialogActions>
         </Dialog> : <></>
