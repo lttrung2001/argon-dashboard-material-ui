@@ -42,46 +42,96 @@ import gradientLineChartData from "layouts/dashboard/data/gradientLineChartData"
 import salesTableData from "layouts/dashboard/data/salesTableData";
 import categoriesListData from "layouts/dashboard/data/categoriesListData";
 
+import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 function Default() {
   const { size } = typography;
+
+  const navigator = useNavigate();
+  const [data, setData] = React.useState();
+  const [courses, setCourses] = React.useState([]);
+
+  const callGetStatistics = async () => {
+    try {
+      apiHelper().get("/statistics").then((res) => {
+        setData(res.data);
+        setCourses(Array.from(res.data.courses).map((course) => {
+          return {
+            course: [course.courseUrl, course.courseName],
+            opened: course.numberOfStudents,
+            total: `${course.numberOfStudents * course.tuition} VND`,
+            bounce: "29.9%",
+          };
+        }));
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator("/authentication/sign-in");
+        } else {
+          setError(SERVICE_UNAVAILABLE);
+        }
+      });
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
+  useState(() => {
+    callGetStatistics();
+  }, [])
+
+  const getPercentString = (number) => {
+    if (number > 0) {
+      return `+${number.toFixed(2)}%`;
+    } else if (number < 0) {
+      return `-${number.toFixed(2)}%`;
+    } else {
+      return "0%";
+    }
+  }
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <ArgonBox py={3}>
-        <Grid container spacing={3} mb={3}>
+        {
+          data ? <Grid container spacing={3} mb={3}>
           <Grid item xs={12} md={6} lg={3}>
             <DetailedStatisticsCard
               title="today's money"
-              count="$53,000"
+              count={`${data.todayMoney} VND`}
               icon={{ color: "info", component: <i className="ni ni-money-coins" /> }}
-              percentage={{ color: "success", count: "+55%", text: "since yesterday" }}
+              percentage={{ color: "success", count: `${getPercentString(data.todayPercentCompareToYesterday)}`, text: "since yesterday" }}
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <DetailedStatisticsCard
-              title="today's users"
-              count="2,300"
+              title="Opened courses"
+              count={`${data.openedCourses} courses`}
               icon={{ color: "error", component: <i className="ni ni-world" /> }}
-              percentage={{ color: "success", count: "+3%", text: "since last week" }}
+              percentage={{ color: "success", count: "0%" }}
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <DetailedStatisticsCard
-              title="new clients"
-              count="+3,462"
+              title="Opened classrooms"
+              count={`${data.openedClassrooms} classrooms`}
               icon={{ color: "success", component: <i className="ni ni-paper-diploma" /> }}
-              percentage={{ color: "error", count: "-2%", text: "since last quarter" }}
+              percentage={{ color: "success", count: "0%" }}
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <DetailedStatisticsCard
-              title="sales"
-              count="$103,430"
+              title="Revenue"
+              count={`${data.totalOfYear} VND`}
               icon={{ color: "warning", component: <i className="ni ni-cart" /> }}
-              percentage={{ color: "success", count: "+5%", text: "than last month" }}
+              percentage={{ color: "success", count: getPercentString(data.totalOfYearCompareToLastYear), text: "than last year" }}
             />
           </Grid>
-        </Grid>
+        </Grid> : <></>
+        }
         <Grid container spacing={3} mb={3}>
           <Grid item xs={12} lg={7}>
             <GradientLineChart
@@ -108,7 +158,7 @@ function Default() {
         </Grid>
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
-            <SalesTable title="Sales by Country" rows={salesTableData} />
+            <SalesTable title="Sales by Course" rows={courses} />
           </Grid>
           <Grid item xs={12} md={4}>
             <CategoriesList title="categories" categories={categoriesListData} />
