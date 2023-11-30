@@ -50,7 +50,7 @@ const SchedulingScreen = () => {
             }, (e) => {
             if (e.message == MESSAGE_INVALID_TOKEN) {
                 localStorage.clear();
-                navigator("/authentication/sign-in");
+                navigator(0);
                 } else {
                 setError(SERVICE_UNAVAILABLE);
                 }
@@ -69,7 +69,7 @@ const SchedulingScreen = () => {
             }, (e) => {
             if (e.message == MESSAGE_INVALID_TOKEN) {
                 localStorage.clear();
-                navigator("/authentication/sign-in");
+                navigator(0);
                 } else {
                 setError(SERVICE_UNAVAILABLE);
                 }
@@ -96,7 +96,7 @@ const SchedulingScreen = () => {
           }, (e) => {
           if (e.message == MESSAGE_INVALID_TOKEN) {
               localStorage.clear();
-              navigator("/authentication/sign-in");
+              navigator(0);
               } else {
               setError(SERVICE_UNAVAILABLE);
               }
@@ -172,11 +172,6 @@ const SchedulingScreen = () => {
                                 plugins={[dayGridPlugin]}
                                 initialView="dayGridMonth"
                                 events={schedules}
-                                // events={[
-                                //     { title: 'khoa hoc lap trinh android 3', date: '2023-11-26', period: 0 },
-                                //     { title: 'khoa hoc lap trinh android 1', date: '2023-11-26', period: 0 },
-                                //     { title: 'khoa hoc lap trinh android 2', date: '2023-11-26', period: 1 }
-                                //   ]}
                                   eventOrder={"extendedProps.period"}
                                 eventClick={(info) => {
                                     console.log(info.event._def);

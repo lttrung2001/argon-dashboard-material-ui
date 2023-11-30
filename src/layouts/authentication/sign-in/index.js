@@ -60,7 +60,7 @@ function Illustration() {
       navigator(0);
     }, (e) => {
       if (e.message == MESSAGE_INVALID_TOKEN) {
-        navigator("/authentication/sign-in");
+        navigator(0);
       } else {
         setError(SERVICE_UNAVAILABLE);
       }

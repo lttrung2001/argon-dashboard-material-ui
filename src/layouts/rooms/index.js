@@ -67,7 +67,7 @@ function RoomsTable() {
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
-          navigator("/authentication/sign-in");
+          navigator(0);
         } else {
           setError(SERVICE_UNAVAILABLE);
         }
@@ -87,7 +87,7 @@ function RoomsTable() {
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
-          navigator("/authentication/sign-in");
+          navigator(0);
         } else {
           setError(SERVICE_UNAVAILABLE);
         }
@@ -105,7 +105,7 @@ function RoomsTable() {
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
-          navigator("/authentication/sign-in");
+          navigator(0);
         } else {
           setError(SERVICE_UNAVAILABLE);
         }
@@ -124,7 +124,7 @@ function RoomsTable() {
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
-          navigator("/authentication/sign-in");
+          navigator(0);
         } else {
           setError(SERVICE_UNAVAILABLE);
         }

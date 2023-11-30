@@ -52,6 +52,7 @@ function Default() {
   const navigator = useNavigate();
   const [data, setData] = React.useState();
   const [courses, setCourses] = React.useState([]);
+  const [error, setError] = React.useState();
 
   const callGetStatistics = async () => {
     try {
@@ -68,7 +69,7 @@ function Default() {
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
-          navigator("/authentication/sign-in");
+          navigator(0);
         } else {
           setError(SERVICE_UNAVAILABLE);
         }
