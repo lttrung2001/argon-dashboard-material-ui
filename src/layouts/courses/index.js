@@ -199,7 +199,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -221,7 +221,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -243,7 +243,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -265,7 +265,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -283,7 +283,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -301,7 +301,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -319,7 +319,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -337,7 +337,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -355,7 +355,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -373,7 +373,7 @@ function CoursesTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -690,7 +690,7 @@ function CoursesTable() {
                       Opening
                     </ArgonTypography>
                   ),
-                  studentPercent: <Completion value={(classroom.registrationList.length / classroom.maxStudent) * 100} color="info" />,
+                  studentPercent: <Completion value={Number((classroom.registrationList.length / classroom.maxStudent) * 100).toFixed(2)} color="info" />,
                   action:
                     <Box>
                       <ArgonTypography

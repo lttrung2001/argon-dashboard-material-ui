@@ -91,7 +91,7 @@ function Header() {
           localStorage.clear();
           navigator("/authentication/sign-in");
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       

@@ -76,7 +76,7 @@ function TeachersTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       
@@ -97,7 +97,7 @@ function TeachersTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       
@@ -116,7 +116,7 @@ function TeachersTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       
@@ -136,7 +136,7 @@ function TeachersTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       
@@ -336,7 +336,7 @@ function TeachersTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
-                  disablePast
+                  disableFuture
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setCreateTeacherDobSelected(dayjs(newDate).format("DD/MM/YYYY"));
@@ -403,7 +403,7 @@ function TeachersTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
-                  disablePast
+                  disableFuture
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setUpdateTeacherDobSelected(dayjs(newDate).format("DD/MM/YYYY"));

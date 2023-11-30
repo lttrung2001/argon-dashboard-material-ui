@@ -69,7 +69,7 @@ function RoomsTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -89,7 +89,7 @@ function RoomsTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
     } catch (e) {
@@ -107,7 +107,7 @@ function RoomsTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });      
     } catch (e) {
@@ -126,7 +126,7 @@ function RoomsTable() {
           localStorage.clear();
           navigator(0);
         } else {
-          setError(SERVICE_UNAVAILABLE);
+          setError(e.response.data.message);
         }
       });
       
