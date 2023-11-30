@@ -65,7 +65,7 @@ function TeachersTable() {
     try {
       await apiHelper().get(`/teachers`).then((response) => {
         const teachers = response.data.map((teacher) => {
-          teacher.dob = dayjs(teacher.dob).format("DD/MM/YYYY")
+          // teacher.dob = dayjs(teacher.dob).format("DD/MM/YYYY")
           return teacher;
         });
         setTeachers(teachers);
@@ -217,7 +217,7 @@ function TeachersTable() {
     { field: "id", headerName: "ID" },
     { field: "fullName", headerName: "Fullname", flex: 1 },
     { field: "gender", headerName: "Gender", valueGetter: (params) => params.row?.gender ? "Male" : "Female" },
-    { field: "dob", headerName: "DOB", flex: 1 },
+    { field: "dob", headerName: "DOB", flex: 1, valueGetter: (params) => dayjs(params.row?.dob).format("DD/MM/YYYY") },
     { field: "address", headerName: "Address", flex: 1 },
     { field: "phoneNumber", headerName: "Phone number", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
