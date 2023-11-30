@@ -1024,6 +1024,7 @@ function CoursesTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
+                    disablePast
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setCreateClassroomStartDateSelected(dayjs(newDate).format("DD/MM/YYYY"));
@@ -1107,6 +1108,7 @@ function CoursesTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
+                  disablePast
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setUpdateClassroomStartDateSelected(dayjs(newDate).format("DD/MM/YYYY"));

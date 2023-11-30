@@ -296,6 +296,7 @@ function StudentsTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
+                  disablePast
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setCreateDob(dayjs(newDate).format("DD/MM/YYYY"));
@@ -362,6 +363,7 @@ function StudentsTable() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
+                  disablePast
                     defaultValue={dayjs(selectedStudent.dob)}
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {

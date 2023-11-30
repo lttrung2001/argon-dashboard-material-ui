@@ -85,9 +85,9 @@ function Default() {
 
   const getPercentString = (number) => {
     if (number > 0) {
-      return `+${number.toFixed(2)}%`;
+      return `+${Number(number).toFixed(2)}%`;
     } else if (number < 0) {
-      return `-${number.toFixed(2)}%`;
+      return `-${Number(number).toFixed(2)}%`;
     } else {
       return "0%";
     }
