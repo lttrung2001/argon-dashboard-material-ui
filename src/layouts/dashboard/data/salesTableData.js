@@ -24,21 +24,25 @@ const salesTableData = [
     course: [US, "united state"],
     sales: 2500,
     total: "$230,900",
-    bounce: "29.9%",
+    // bounce: "29.9%",
   },
   {
     course: [DE, "germany"],
     sales: "3.900",
     total: "$440,000",
-    bounce: "40.22%",
+    // bounce: "40.22%",
   },
   {
     course: [GB, "great britain"],
     sales: "1.400",
     total: "$190,700",
-    bounce: "23.44%",
+    // bounce: "23.44%",
   },
-  { course: [BR, "brasil"], sales: 562, total: "$143,960", bounce: "32.14%" },
+  { course: [BR, "brasil"], 
+    sales: 562, 
+    total: "$143,960", 
+    // bounce: "32.14%" 
+  },
 ];
 
 export default salesTableData;

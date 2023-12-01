@@ -38,7 +38,7 @@ import typography from "assets/theme/base/typography";
 import Slider from "layouts/dashboard/components/Slider";
 
 // Data
-import gradientLineChartData from "layouts/dashboard/data/gradientLineChartData";
+// import gradientLineChartData from "layouts/dashboard/data/gradientLineChartData";
 import salesTableData from "layouts/dashboard/data/salesTableData";
 import categoriesListData from "layouts/dashboard/data/categoriesListData";
 
@@ -50,9 +50,21 @@ function Default() {
   const { size } = typography;
 
   const navigator = useNavigate();
-  const [data, setData] = React.useState();
+  const [data, setData] = React.useState({
+    totalOfYearCompareToLastYear: 0
+  });
   const [courses, setCourses] = React.useState([]);
   const [error, setError] = React.useState();
+  const [gradientLineChartData, setGradientLineChartData] = React.useState({
+    labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    datasets: [
+      {
+        label: "Mobile apps",
+        color: "info",
+        data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+      },
+    ],
+  });
 
   const callGetStatistics = async () => {
     try {
@@ -63,9 +75,37 @@ function Default() {
             course: [course.courseUrl, course.courseName],
             opened: course.numberOfStudents,
             total: `${course.numberOfStudents * course.tuition} VND`,
-            bounce: "29.9%",
           };
         }));
+        const lbls = Array.from(res.data.monthlyStatisticList).map((item) => {
+          switch (item.month) {
+            case 1: return "Jan"
+            case 2: return "Feb"
+            case 3: return "Mar"
+            case 4: return "Apr"
+            case 5: return "May"
+            case 6: return "Jun"
+            case 7: return "Jul"
+            case 8: return "Aug"
+            case 9: return "Sep"
+            case 10: return "Oct"
+            case 11: return "Nov"
+            case 12: return "Dec"
+          }
+        })
+        const valueList = Array.from(res.data.monthlyStatisticList).map((item) => {
+          return item.total;
+        })
+        setGradientLineChartData({
+          labels: lbls,
+          datasets: [
+            {
+              label: "Revenue",
+              color: "info",
+              data: valueList,
+            },
+          ],
+        })
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
@@ -91,6 +131,11 @@ function Default() {
     } else {
       return "0%";
     }
+  }
+
+  const getIcon = () => {
+    if (data.totalOfYearCompareToLastYear >= 0) return `arrow_upward`
+                      else return `arrow_downward`
   }
 
   return (
@@ -140,12 +185,12 @@ function Default() {
               description={
                 <ArgonBox display="flex" alignItems="center">
                   <ArgonBox fontSize={size.lg} color="success" mb={0.3} mr={0.5} lineHeight={0}>
-                    <Icon sx={{ fontWeight: "bold" }}>arrow_upward</Icon>
+                    <Icon sx={{ fontWeight: "bold" }}>{getIcon()}</Icon>
                   </ArgonBox>
                   <ArgonTypography variant="button" color="text" fontWeight="medium">
-                    4% more{" "}
+                    {`${getPercentString(data.totalOfYearCompareToLastYear)} more`}{" "}
                     <ArgonTypography variant="button" color="text" fontWeight="regular">
-                      in 2022
+                      {`in ${new Date().getFullYear()}`}
                     </ArgonTypography>
                   </ArgonTypography>
                 </ArgonBox>
