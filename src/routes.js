@@ -57,6 +57,7 @@ import { ROLE } from "utils/Axios";
 import { MANAGER_ROLE } from "utils/Axios";
 import TeachingTable from "layouts/teaching";
 import SchedulingScreen from './layouts/scheduling/index';
+import ScoreRateConfiguration from "layouts/configuration";
 
 // localStorage.clear();
 var routes = [];
@@ -150,6 +151,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
         ),
         component: <SchedulingScreen />,
+      },
+      {
+        type: "route",
+        name: "Configuration",
+        key: "configuration",
+        route: "/configuration",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <ScoreRateConfiguration />,
       },
       {
         type: "route",

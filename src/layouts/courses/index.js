@@ -491,7 +491,7 @@ function CoursesTable() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const editCourseData = {
-      id: data.get("courseId"),
+      id: selectedCourse.id,
       name: data.get("courseName"),
       trainingTime: data.get("trainingTime"),
       status: data.get("status"),
@@ -861,10 +861,6 @@ function CoursesTable() {
                 image={updateCourseImage ? URL.createObjectURL(updateCourseImage) : selectedCourse.thumbnail}
               /> : <></>
             }
-            <Box mx={2} my={1}>
-              <Typography>Id</Typography>
-              <TextField id="courseId" name="courseId" fullWidth defaultValue={selectedCourse.id} />
-            </Box>
             <Box mx={2} my={1}>
               <Typography>Course name</Typography>
               <TextField id="courseName" name="courseName" fullWidth defaultValue={selectedCourse.name} />
