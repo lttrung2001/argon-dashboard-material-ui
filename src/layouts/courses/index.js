@@ -745,7 +745,7 @@ function CoursesTable() {
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
                 Upload file
-                <VisuallyHiddenInput type="file" onChange={(e) => { onFileSelected(e) }} />
+                <VisuallyHiddenInput type="file" accept="image/*" inputProps={{ accept: 'image/*' }} onChange={(e) => { onFileSelected(e) }} />
               </Button>
             </Box>
             {
@@ -850,7 +850,7 @@ function CoursesTable() {
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
                 Upload file
-                <VisuallyHiddenInput type="file" onChange={(e) => { onUpdateCourseFileSelected(e) }} />
+                <VisuallyHiddenInput type="file" inputProps={{ accept: 'image/*' }} onChange={(e) => { onUpdateCourseFileSelected(e) }} />
               </Button>
             </Box>
             {

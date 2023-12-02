@@ -323,7 +323,7 @@ function SubjectsTable() {
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
                 Upload file
-                <VisuallyHiddenInput type="file" multiple onChange={(e) => { onFilesSelected(e) }} />
+                <VisuallyHiddenInput type="file" accept=".xlsx,.xls,image/*,.doc, .docx,.ppt, .pptx,.txt,.pdf" multiple onChange={(e) => { onFilesSelected(e) }} />
               </Button>
             </Box>
             <Box mx={2}>
@@ -379,7 +379,7 @@ function SubjectsTable() {
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
                 Upload file
-                <VisuallyHiddenInput type="file" multiple onChange={(e) => { onFilesSelectedForUpdate(e) }} />
+                <VisuallyHiddenInput type="file" accept=".xlsx,.xls,image/*,.doc, .docx,.ppt, .pptx,.txt,.pdf" multiple onChange={(e) => { onFilesSelectedForUpdate(e) }} />
               </Button>
             </Box>
             <Box mx={2}>
