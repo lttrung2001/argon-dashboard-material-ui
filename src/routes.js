@@ -58,6 +58,7 @@ import { MANAGER_ROLE } from "utils/Axios";
 import TeachingTable from "layouts/teaching";
 import SchedulingScreen from './layouts/scheduling/index';
 import ScoreRateConfiguration from "layouts/configuration";
+import ScoresViewTable from "layouts/scoresview";
 
 // localStorage.clear();
 var routes = [];
@@ -144,11 +145,21 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
       },
       {
         type: "route",
+        name: "Scores View",
+        key: "scores-view",
+        route: "/scores-view",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+        ),
+        component: <ScoresViewTable />,
+      },
+      {
+        type: "route",
         name: "Scheduling",
         key: "scheduling",
         route: "/scheduling",
         icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
         ),
         component: <SchedulingScreen />,
       },
@@ -204,7 +215,7 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
         key: "scheduling",
         route: "/scheduling",
         icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
         ),
         component: <SchedulingScreen />,
       },
@@ -227,6 +238,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
         ),
         component: <ScoresTable />,
+      },
+      {
+        type: "route",
+        name: "Scores View",
+        key: "scoresview",
+        route: "/scores-view",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
+        ),
+        component: <ScoresViewTable />,
       },
       { type: "title", title: "Account Pages", key: "account-pages" },
       {

@@ -55,7 +55,7 @@ function CustomToolbar() {
   );
 }
 
-function ScoresTable() {
+function ScoresViewTable() {
   const changedMap = new Map();
 
   const [message, setMessage] = React.useState();
@@ -68,7 +68,7 @@ function ScoresTable() {
 
   const callGetClassrooms = async () => {
     try {
-      apiHelper().get(`/scores/classrooms`).then((response) => {
+      apiHelper().get(`/classrooms`).then((response) => {
         const classrooms = response.data;
       setClassrooms(classrooms);
       }, (e) => {
@@ -180,7 +180,7 @@ function ScoresTable() {
     { field: "student.id", headerName: "Student ID", flex: 1, valueGetter: (params) => params.row?.student.id },
     { field: "student.fullName", headerName: "Fullname", flex: 1, valueGetter: (params) => params.row?.student.fullName },
     {
-      field: "score1", headerName: "Score 1", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      field: "score1", headerName: "Score 1", flex: 1, editable: false, type: 'number', max: 10, min: 0,
       renderEditCell: (params) => (
         <GridEditInputCell
           {...params}
@@ -193,7 +193,7 @@ function ScoresTable() {
       )
     },
     {
-      field: "score2", headerName: "Score 2", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      field: "score2", headerName: "Score 2", flex: 1, editable: false, type: 'number', max: 10, min: 0,
       renderEditCell: (params) => (
         <GridEditInputCell
           {...params}
@@ -206,7 +206,7 @@ function ScoresTable() {
       )
     },
     {
-      field: "score3", headerName: "Score 3", flex: 1, editable: true, type: 'number', max: 10, min: 0,
+      field: "score3", headerName: "Score 3", flex: 1, editable: false, type: 'number', max: 10, min: 0,
       renderEditCell: (params) => (
         <GridEditInputCell
           {...params}
@@ -365,4 +365,4 @@ function ScoresTable() {
   );
 }
 
-export default ScoresTable;
+export default ScoresViewTable;

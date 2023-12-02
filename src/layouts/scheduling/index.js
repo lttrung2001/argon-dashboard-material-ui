@@ -15,11 +15,12 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
+import apiHelper, { MESSAGE_INVALID_TOKEN, ROLE, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { DialogContentText } from '@mui/material';
 import { useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
+import { MANAGER_ROLE } from './../../utils/Axios';
 
 const SchedulingScreen = () => {
     const [error, setError] = React.useState();
@@ -138,7 +139,9 @@ const SchedulingScreen = () => {
     }
 
     useEffect(() => {
-        callGetNotArrangedClassrooms();
+        if (localStorage.getItem(ROLE) === MANAGER_ROLE) {
+          callGetNotArrangedClassrooms();
+        }
         callGetAllSchedule();
     }, []);
 
@@ -150,13 +153,16 @@ const SchedulingScreen = () => {
                     <Card>
                         <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
                             <ArgonTypography variant="h6">Scheduling</ArgonTypography>
-                            <Button onClick={() => {
-                                if (classrooms.length === 0) {
-                                    setError("There is no available classrooms to generate!");
-                                    return;
-                                }
-                                setOpenDialog(true);
-                            }}>Arrange timetable</Button>
+                            {
+                              localStorage.getItem(ROLE) === MANAGER_ROLE ?
+                                <Button onClick={() => {
+                                  if (classrooms.length === 0) {
+                                      setError("There is no available classrooms to generate!");
+                                      return;
+                                  }
+                                  setOpenDialog(true);
+                              }}>Arrange timetable</Button> : <></>
+                            }
                         </ArgonBox>
                         <ArgonBox
                             sx={{
@@ -199,7 +205,7 @@ const SchedulingScreen = () => {
           onClose={handleCloseDialog}
           aria-describedby="alert-dialog-slide-description"
         >
-          <DialogTitle>{`Select classrooms to generate schedule for them`}</DialogTitle>
+          <DialogTitle>{`Arrange schedule`}</DialogTitle>
           <Box mx={3} my={1}>
           <DataGrid
           getRowId={(row) => row.id}
@@ -257,9 +263,6 @@ const SchedulingScreen = () => {
             {"Schedule details"}
           </DialogTitle>
           <DialogContent>
-            {/* <DialogContentText id="alert-dialog-description" mb={3}>
-              <ArgonTypography variant="h5">Schedule details</ArgonTypography>
-            </DialogContentText> */}
             <Box>
               <ArgonTypography variant="h6">Course info</ArgonTypography>
               <TextField fullWidth disabled defaultValue={`${selectedEvent.data.classroom.course.id} | ${selectedEvent.data.classroom.course.name}`} />

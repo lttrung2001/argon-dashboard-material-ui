@@ -51,6 +51,7 @@ function RegistrationsTable() {
   const [error, setError] = React.useState();
   const [classroomRegistrationList, setClassroomRegistrationList] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
+  const [selectedClassroom, setSelectedClassroom] = React.useState();
   const [confirmPayment, setConfirmPayment] = React.useState();
   const navigator = useNavigate();
 
@@ -60,6 +61,7 @@ function RegistrationsTable() {
         const data = response.data;
         setClassrooms(data);
         if (Array.from(data).length > 0) {
+          setSelectedClassroom(data[0]);
           handleShowStudentList(data[0]);
         }
       }, (e) => {
@@ -191,6 +193,7 @@ function RegistrationsTable() {
                 style={{
                   width: 500
                 }}
+                defaultValue={selectedClassroom}
                 onChange={(event, newValue) => {
                   if (newValue) {
                     handleShowStudentList(newValue);

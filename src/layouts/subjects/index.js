@@ -327,7 +327,7 @@ function SubjectsTable() {
               </Button>
             </Box>
             <Box mx={2}>
-              <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+              {/* <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {Array.from(files).map((file) => {
                   const labelId = `checkbox-list-label-${file.name}`;
                   return (
@@ -343,7 +343,19 @@ function SubjectsTable() {
                     </ListItem>
                   );
                 })}
-              </List>
+              </List> */}
+              {
+                Array.from(files).map((file) => {
+                  return <>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={14}>{file.name}</Typography>
+                    <IconButton edge="end" aria-label="deletes" onClick={() => handleRemoveFileFromCreateList(file)}>
+                          <GridDeleteIcon />
+                    </IconButton>
+                  </Box>
+                  </>
+                })
+              }
             </Box>
             <Box mx={2} my={1}>
               <Typography>Subject name</Typography>
@@ -351,7 +363,7 @@ function SubjectsTable() {
             </Box>
             <Box mx={2} my={1}>
               <Typography>Number of lessons</Typography>
-              <TextField id="lessons" name="lessons" fullWidth inputProps={{
+              <TextField id="lessons" name="lessons" fullWidth defaultValue={5} inputProps={{
                 onChange: handleTextFieldNumberChange,
                 maxLength: 3
               }} />
@@ -383,7 +395,7 @@ function SubjectsTable() {
               </Button>
             </Box>
             <Box mx={2}>
-              <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+              {/* <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {Array.from(selectedSubject.documents).map((document) => {
                   const labelId = `checkbox-list-label-${document.name}`;
                   return (
@@ -406,7 +418,26 @@ function SubjectsTable() {
                     </ListItem>
                   );
                 })}
-              </List>
+              </List> */}
+              {
+                Array.from(selectedSubject.documents).map((document) => {
+                  return <>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={14}>{document.name}</Typography>
+                    <Box>
+                    {document.isLocal ? <></> : <IconButton edge="end" aria-label="opens" onClick={
+                            () => window.open(document.url, "_blank")
+                          }>
+                            <InfoIcon />
+                          </IconButton>}
+                          <IconButton edge="end" aria-label="deletes" onClick={() => handleRemoveDocument(document)}>
+                            <GridDeleteIcon />
+                          </IconButton>
+                    </Box>
+                  </Box>
+                  </>
+                })
+              }
             </Box>
             <Box mx={2} my={1}>
               <Typography>Subject name</Typography>

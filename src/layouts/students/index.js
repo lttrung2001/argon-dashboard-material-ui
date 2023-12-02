@@ -283,6 +283,7 @@ function StudentsTable() {
             <Box mx={3} my={1}>
               <RadioGroup
                 row
+                defaultValue={true}
                 aria-labelledby="demo-row-radio-buttons-group-label"
                 name="gender"
               >

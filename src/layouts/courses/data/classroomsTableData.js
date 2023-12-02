@@ -31,7 +31,7 @@ const classroomsTableData = {
   columns: [
     { name: "name", align: "left" },
     { name: "startDate", align: "left" },
-    { name: "status", align: "left" },
+    // { name: "status", align: "left" },
     { name: "studentPercent", align: "center" },
     { name: "action", align: "center" },
   ]

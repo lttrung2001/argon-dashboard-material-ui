@@ -331,6 +331,9 @@ function CoursesTable() {
     try {
       apiHelper().post("/classrooms/create", createClassroomData).then((response) => {
         callGetClassrooms();
+        setCreateClassroomCourseSelected(null);
+        setCreateClassroomTeacherSelected(null);
+        setCreateClassroomStartDateSelected(null);
         setConfirm("Create classroom successfully!");
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -430,6 +433,9 @@ function CoursesTable() {
 
   const handleCloseCreateNewClassroomPopup = () => {
     setShowCreateClassroomPopup(false);
+    setCreateClassroomCourseSelected(null);
+    setCreateClassroomTeacherSelected(null);
+    setCreateClassroomStartDateSelected(null);
   };
 
   const handleCloseEditCoursePopup = () => {
@@ -462,24 +468,14 @@ function CoursesTable() {
 
   const handleCreateNewClassroom = (event) => {
     event.preventDefault();
-    if (!createClassroomCourseSelected) {
-      setError("Please select a course!");
-      return
-    } else if (!createClassroomTeacherSelected) {
-      setError("Please select a teacher!");
-      return
-    } else if (!createClassroomStartDateSelected) {
-      setError("Please choose start date!");
-      return
-    }
     const data = new FormData(event.currentTarget);
     const createClassroomData = {
-      courseId: createClassroomCourseSelected.id,
+      courseId: createClassroomCourseSelected?.id,
       name: data.get("classroomName"),
       maxStudent: data.get("maxStudent"),
       minStudent: data.get("minStudent"),
       startDate: createClassroomStartDateSelected,
-      teacherId: createClassroomTeacherSelected.id
+      teacherId: createClassroomTeacherSelected?.id
     };
     console.log("DATA::");
     console.log(createClassroomData);
@@ -649,11 +645,30 @@ function CoursesTable() {
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Classroom list</ArgonTypography>
+              <Box mr={2}>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={courses}
+                sx={{ width: 300 }}
+                onChange={(event, value) => {
+                  if (value == null) {
+                    setClassrooms(originClassrooms);
+                  } else {
+                    setClassrooms(Array.from(originClassrooms).filter((classroom) => {
+                      return classroom.course.id == value.id;
+                    }));
+                  }
+                }}
+                getOptionLabel={option => `${option.id} | ${option.name}`}
+                renderInput={(params) => <TextField {...params} placeholder="Filter by course" />}
+              />
+              </Box>
               <TextField
                 style={{
-                  width: 500
+                  width: 300
                 }}
-                placeholder="Search course"
+                placeholder="Search classroom"
                 onChange={(event) => {
                   const value = event.target.value;
                   if (value.length == 0) {
@@ -685,11 +700,11 @@ function CoursesTable() {
                       {dayjs(classroom.startDate).format("DD/MM/YYYY")}
                     </ArgonTypography>
                   ),
-                  status: (
-                    <ArgonTypography variant="caption" color="text" fontWeight="medium">
-                      Opening
-                    </ArgonTypography>
-                  ),
+                  // status: (
+                  //   <ArgonTypography variant="caption" color="text" fontWeight="medium">
+                  //     Opening
+                  //   </ArgonTypography>
+                  // ),
                   studentPercent: <Completion value={Number((classroom.registrationList.length / classroom.maxStudent) * 100).toFixed(2)} color="info" />,
                   action:
                     <Box>
@@ -744,7 +759,7 @@ function CoursesTable() {
           <Box component="form" onSubmit={handleCreateNewCourse}>
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
-                Upload file
+                Upload image
                 <VisuallyHiddenInput type="file" accept="image/*" inputProps={{ accept: 'image/*' }} onChange={(e) => { onFileSelected(e) }} />
               </Button>
             </Box>
@@ -779,6 +794,7 @@ function CoursesTable() {
               <Typography>Description</Typography>
               <TextField id="description" name="description" fullWidth />
             </Box>
+            <Typography mx={2}>Subject list</Typography>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
               <Grid item>{customList(left)}</Grid>
               <Grid item>
@@ -849,7 +865,7 @@ function CoursesTable() {
           <Box component="form" onSubmit={handleEditCourse}>
             <Box mx={2}>
               <Button component="label" variant="contained" startIcon={<CloudUploadRounded />}>
-                Upload file
+                Upload image
                 <VisuallyHiddenInput type="file" inputProps={{ accept: 'image/*' }} onChange={(e) => { onUpdateCourseFileSelected(e) }} />
               </Button>
             </Box>
@@ -868,7 +884,7 @@ function CoursesTable() {
             <Box mx={2} my={1}>
               <Typography>Training time (months)</Typography>
               <TextField id="trainingTime" name="trainingTime" fullWidth defaultValue={selectedCourse.trainingTime} inputProps={{
-            min: 0,
+            min: 1,
           }} />
             </Box>
             <Box mx={2} my={1}>
