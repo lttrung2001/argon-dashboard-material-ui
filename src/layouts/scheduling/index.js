@@ -13,7 +13,7 @@ import ArgonTypography from "components/ArgonTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, styled } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import apiHelper, { MESSAGE_INVALID_TOKEN, ROLE, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import { DialogContentText } from '@mui/material';
@@ -21,6 +21,20 @@ import { useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { MANAGER_ROLE } from './../../utils/Axios';
+
+// Sử dụng styled-components để tạo một component tùy chỉnh
+const CustomCalendar = styled(FullCalendar)`
+  /* Đặt kích thước chữ cho tháng và năm */
+  .fc-toolbar-title {
+    font-size: 18px; /* Điều chỉnh kích thước chữ theo ý muốn */
+  }
+
+  /* Đặt kích thước chữ cho giá trị ngày tháng trong header */
+  .fc-col-header-cell-cushion,
+  .fc-col-header-cell {
+    font-size: 14px; /* Điều chỉnh kích thước chữ theo ý muốn */
+  }
+`;
 
 const SchedulingScreen = () => {
     const [error, setError] = React.useState();
@@ -39,7 +53,10 @@ const SchedulingScreen = () => {
 
       const classroomColumns = [
         { field: "id", headerName: "ID" },
-        { field: "name", headerName: "Classroom name", flex: 1 }
+        { field: "name", headerName: "Classroom name", flex: 1 },
+        { field: "trainingTime", headerName: "Training time", flex: 1, valueGetter: (params) => `${params.row.course.trainingTime} months`},
+        { field: "startDate", headerName: "Start date", flex: 1, valueGetter: (params) => dayjs(params.row.startDate).format("DD/MM/YYYY") },
+        { field: "endDate", headerName: "End date", flex: 1, valueGetter: (params) => dayjs(params.row.endDate).format("DD/MM/YYYY") },
       ]
 
     const callGetNotArrangedClassrooms = () => {
@@ -92,7 +109,6 @@ const SchedulingScreen = () => {
               };
               return tmpItem;
             });
-            console.log(mappedData);
             setSchedules(mappedData);
           }, (e) => {
           if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -220,10 +236,10 @@ const SchedulingScreen = () => {
                 />
           </Box>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={() => {
+          <Button onClick={() => {
                 handleGenerateTimetable();
-            }}>Select classrooms</Button>
+            }}>Arrange</Button>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
           </DialogActions>
         </Dialog> : <></>
       }

@@ -70,7 +70,14 @@ function ScoresTable() {
     try {
       apiHelper().get(`/scores/classrooms`).then((response) => {
         const classrooms = response.data;
-      setClassrooms(classrooms);
+        setClassrooms(classrooms);
+        if (classrooms.length > 0) {
+          const firstClassroom = classrooms[0];
+          setSelectedClassroom(firstClassroom);
+          setSelectedClassroomSubject(
+            firstClassroom.classroomSubjects.length > 0 ? firstClassroom.classroomSubjects[0] : null
+          );
+        }
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
@@ -254,12 +261,13 @@ function ScoresTable() {
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Score list of classroom subject</ArgonTypography>
               <Autocomplete
+                defaultValue={selectedClassroom}
+                value={selectedClassroom}
                 onChange={(event, newValue) => {
-                  if (newValue) {
-                    setSelectedClassroom(newValue);
-                    setScores([]);
-                    changedMap.clear();
-                  }
+                  setSelectedClassroom(newValue);
+                  setSelectedClassroomSubject(null);
+                  setScores([]);
+                  changedMap.clear();
                 }}
                 disablePortal
                 id="combo-box-demo"
@@ -269,12 +277,14 @@ function ScoresTable() {
                 renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
               <Autocomplete
+                defaultValue={selectedClassroomSubject}
+                value={selectedClassroomSubject}
                 onChange={(event, newValue) => {
+                  setSelectedClassroomSubject(newValue);
+                  setScores([]);
+                  changedMap.clear();
                   if (newValue) {
-                    setSelectedClassroomSubject(newValue);
-                    setScores([]);
                     handleGetScores(newValue);
-                    changedMap.clear();
                   }
                 }}
                 disablePortal

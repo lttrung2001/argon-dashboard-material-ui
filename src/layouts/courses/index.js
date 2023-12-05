@@ -159,6 +159,8 @@ function CoursesTable() {
   const [confirm, setConfirm] = React.useState();
   const [confirmDelete, setConfirmDelete] = React.useState();
 
+  const [originOpenCourses, setOriginOpenCourses] = React.useState([]);
+  const [openCourses, setOpenCourses] = React.useState([]);
   const [originCourses, setOriginCourses] = React.useState([]);
   const [originClassrooms, setOriginClassrooms] = React.useState([]);
   const [courses, setCourses] = React.useState([]);
@@ -191,6 +193,28 @@ function CoursesTable() {
         const courses = response.data;
         setOriginCourses(courses);
         setCourses(courses);
+        handleCloseCreateNewCoursePopup();
+        handleCloseEditCoursePopup();
+        setConfirmDelete(null);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator(0);
+        } else {
+          setError(e.response.data.message);
+        }
+      });
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
+  const callGetOpenCourses = async () => {
+    try {
+      apiHelper().get("/courses/open").then((response) => {
+        const courses = response.data;
+        setOriginOpenCourses(courses);
+        setOpenCourses(courses);
         handleCloseCreateNewCoursePopup();
         handleCloseEditCoursePopup();
         setConfirmDelete(null);
@@ -386,17 +410,9 @@ function CoursesTable() {
 
   useEffect(() => {
     callGetCourses();
-  }, []);
-
-  useEffect(() => {
+    callGetOpenCourses();
     callGetClassrooms();
-  }, []);
-
-  useEffect(() => {
     callGetSubjects();
-  }, []);
-
-  useEffect(() => {
     callGetTeachers();
   }, []);
 
@@ -594,7 +610,7 @@ function CoursesTable() {
             >
               <Table columns={columns} rows={courses.map((course) => {
                 return {
-                  info: <Course image={course.thumbnail} name={course.name} email="john@creative-tim.com" />,
+                  info: <Course image={course.thumbnail} name={course.name} email="" />,
                   tuition: <Function job={course.tuition + " VND"} org="For student" />,
                   status: (
                     <ArgonBadge variant="gradient" badgeContent={course.status ? "Opening" : "Closed"} color={course.status ? "success" : "error"} size="xs" container />
@@ -649,7 +665,9 @@ function CoursesTable() {
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                options={courses}
+                options={courses.filter((c) => {
+                  return c.classrooms.length > 0;
+                })}
                 sx={{ width: 300 }}
                 onChange={(event, value) => {
                   if (value == null) {
@@ -991,7 +1009,7 @@ function CoursesTable() {
                 }}
                 disablePortal
                 id="combo-box-demo"
-                options={courses}
+                options={openCourses}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
                 renderInput={(params) => <TextField {...params} placeholder="Select course" />}
@@ -1074,7 +1092,7 @@ function CoursesTable() {
                 defaultValue={selectedClassroom.course}
                 disablePortal
                 id="combo-box-demo"
-                options={courses}
+                options={openCourses}
                 sx={{ width: 300 }}
                 getOptionLabel={option => `${option.id} | ${option.name}`}
                 renderInput={(params) => <TextField {...params} />}

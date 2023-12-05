@@ -51,16 +51,18 @@ function RegistrationsTable() {
   const [error, setError] = React.useState();
   const [classroomRegistrationList, setClassroomRegistrationList] = React.useState([]);
   const [classrooms, setClassrooms] = React.useState([]);
-  const [selectedClassroom, setSelectedClassroom] = React.useState();
+  const [selectedClassroom, setSelectedClassroom] = React.useState(null);
   const [confirmPayment, setConfirmPayment] = React.useState();
   const navigator = useNavigate();
 
   const callGetClassrooms = async () => {
     try {
       apiHelper().get(`/classrooms`).then((response) => {
-        const data = response.data;
+        const data = Array.from(response.data).filter((value) => {
+          return value.registrationList.length > 0;
+        });
         setClassrooms(data);
-        if (Array.from(data).length > 0) {
+        if (data.length > 0) {
           setSelectedClassroom(data[0]);
           handleShowStudentList(data[0]);
         }
@@ -194,12 +196,17 @@ function RegistrationsTable() {
                   width: 500
                 }}
                 defaultValue={selectedClassroom}
+                value={selectedClassroom}
                 onChange={(event, newValue) => {
                   if (newValue) {
+                    setSelectedClassroom(newValue)
                     handleShowStudentList(newValue);
+                    console.log("NEW VALUE")
+                  } else {
+                    setClassroomRegistrationList([]);
+                    console.log("EMPTY VALUE")
                   }
                 }}
-                value={classrooms[0]}
                 disablePortal
                 id="combo-box-demo"
                 options={classrooms}

@@ -65,15 +65,21 @@ function Default() {
       },
     ],
   });
+  
+  const getTotal = (course) => {
+    return course.numberOfStudents * course.tuition;
+  }
 
   const callGetStatistics = async () => {
     try {
       apiHelper().get("/statistics").then((res) => {
         setData(res.data);
-        setCourses(Array.from(res.data.courses).map((course) => {
+        setCourses(Array.from(res.data.courses).sort((firstCourse, secondCourse) => {
+          return getTotal(secondCourse) - getTotal(firstCourse);
+        }).map((course) => {
           return {
             course: [course.courseUrl, course.courseName],
-            opened: course.numberOfStudents,
+            students: course.numberOfStudents,
             total: `${course.numberOfStudents * course.tuition} VND`,
           };
         }));

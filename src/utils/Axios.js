@@ -37,7 +37,8 @@ export default () => {
     })
     
     apiHelper.interceptors.response.use((response) => {
-        console.log(response);
+        console.log("REQUEST URL: ", response.config.url);
+        console.log("RESPONSE: ", response);
         return response;
     })
     return apiHelper;

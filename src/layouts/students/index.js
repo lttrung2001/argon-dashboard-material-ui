@@ -48,6 +48,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import RadioGroup from '@mui/material/RadioGroup';
 import { handleTextFieldNumberChange } from "layouts/courses";
 import { useNavigate } from "react-router-dom";
+import ConfirmDeleteData from "utils/ConfirmDeleteData";
 
 function StudentsTable() {
   const [error, setError] = React.useState();
@@ -121,6 +122,25 @@ function StudentsTable() {
     }
   };
 
+  const callDeleteStudent = async (studentId) => {
+    try {
+      apiHelper().delete(`/students/delete?studentId=${studentId}`).then((response) => {
+        setSelectedStudent(null);
+        callGetStudents();
+        setConfirm("Delete student successfully!");
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator(0);
+        } else {
+          setError(e.response.data.message);
+        }
+      });
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
   useEffect(() => {
     callGetStudents();
   }, []);
@@ -169,6 +189,14 @@ function StudentsTable() {
     callUpdateStudent(requestData);
   };
 
+  const handleDeleteStudent = (student) => {
+    setConfirmDelete(new ConfirmDeleteData(
+      ACTION_DELETE_STUDENT,
+      `Are you sure to delete student with name ${student.fullName}`,
+      student
+    ));
+  }
+
   const handleCloseErrorDialog = () => {
     setError(null);
   };
@@ -211,6 +239,19 @@ function StudentsTable() {
           <Card>
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Student list</ArgonTypography>
+              <Autocomplete
+                onChange={(event, newValue) => {
+                  if (newValue) {
+                    setSelectedStudent(newValue);
+                  }
+                }}
+                disablePortal
+                id="combo-box-demo"
+                options={students}
+                sx={{ width: 300 }}
+                getOptionLabel={option => `${option.id} | ${option.fullName}`}
+                renderInput={(params) => <TextField {...params} placeholder="Search student" />}
+              />
               <Button onClick={() => {
                 setShowCreatePopup(true);
               }}>Create</Button>
@@ -391,6 +432,9 @@ function StudentsTable() {
             </Box>
             <DialogActions>
               <Button type="submit">Update</Button>
+              <Button onClick={() => {
+                handleDeleteStudent(selectedStudent);
+              }}>Delete</Button>
               <Button onClick={handleCloseUpdatePopup}>Cancel</Button>
 
             </DialogActions>
@@ -438,7 +482,7 @@ function StudentsTable() {
           </DialogContent>
           <DialogActions>
           <Button onClick={() => {
-              callDeleteRoom(confirmDelete.data.id);
+              callDeleteStudent(confirmDelete.data.id);
               setConfirmDelete(null);
             }} autoFocus>
               Agree

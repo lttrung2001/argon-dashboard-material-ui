@@ -62,15 +62,22 @@ function ScoresViewTable() {
   const [error, setError] = React.useState();
   const [classrooms, setClassrooms] = React.useState([]);
   const [scores, setScores] = React.useState([]);
-  const [selectedClassroom, setSelectedClassroom] = React.useState();
-  const [selectedClassroomSubject, setSelectedClassroomSubject] = React.useState();
+  const [selectedClassroom, setSelectedClassroom] = React.useState(null);
+  const [selectedClassroomSubject, setSelectedClassroomSubject] = React.useState(null);
   const navigator = useNavigate();
 
   const callGetClassrooms = async () => {
     try {
       apiHelper().get(`/classrooms`).then((response) => {
         const classrooms = response.data;
-      setClassrooms(classrooms);
+        setClassrooms(classrooms);
+        if (classrooms.length > 0) {
+          const firstClassroom = classrooms[0];
+          setSelectedClassroom(firstClassroom);
+          setSelectedClassroomSubject(
+            firstClassroom.classroomSubjects.length > 0 ? firstClassroom.classroomSubjects[0] : null
+          );
+        }
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
           localStorage.clear();
@@ -254,12 +261,13 @@ function ScoresViewTable() {
             <ArgonBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
               <ArgonTypography variant="h6">Score list of classroom subject</ArgonTypography>
               <Autocomplete
+                defaultValue={selectedClassroom}
+                value={selectedClassroom}
                 onChange={(event, newValue) => {
-                  if (newValue) {
-                    setSelectedClassroom(newValue);
-                    setScores([]);
-                    changedMap.clear();
-                  }
+                  setSelectedClassroom(newValue);
+                  setSelectedClassroomSubject(null);
+                  setScores([]);
+                  changedMap.clear();
                 }}
                 disablePortal
                 id="combo-box-demo"
@@ -269,12 +277,14 @@ function ScoresViewTable() {
                 renderInput={(params) => <TextField {...params} placeholder="Select classroom" />}
               />
               <Autocomplete
+                defaultValue={selectedClassroomSubject}
+                value={selectedClassroomSubject}
                 onChange={(event, newValue) => {
+                  setSelectedClassroomSubject(newValue);
+                  setScores([]);
+                  changedMap.clear();
                   if (newValue) {
-                    setSelectedClassroomSubject(newValue);
-                    setScores([]);
                     handleGetScores(newValue);
-                    changedMap.clear();
                   }
                 }}
                 disablePortal
@@ -284,7 +294,6 @@ function ScoresViewTable() {
                 getOptionLabel={option => `${option.subject.name}`}
                 renderInput={(params) => <TextField {...params} placeholder="Select subject" />}
               />
-              {scores.length > 0 ? <Button onClick={handleSaveScores}>Save</Button> : <></>}
             </ArgonBox>
             <ArgonBox
               sx={{
