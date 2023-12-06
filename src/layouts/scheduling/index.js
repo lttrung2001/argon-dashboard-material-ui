@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { MANAGER_ROLE } from './../../utils/Axios';
+import { useMovieData } from '@mui/x-data-grid-generator';
 
 // Sử dụng styled-components để tạo một component tùy chỉnh
 const CustomCalendar = styled(FullCalendar)`
@@ -42,9 +43,12 @@ const SchedulingScreen = () => {
     const [selectedEvent, setSelectedEvent] = React.useState();
     const [classrooms, setClassrooms] = React.useState([]);
     const [openDialog, setOpenDialog] = React.useState();
+    const [tempData, setTempData] = React.useState();
     const [selectedList, setSelectedList] = React.useState([]);
     const [schedules, setSchedules] = React.useState([]);
     const navigator = useNavigate();
+    const movieData = useMovieData();
+    console.log(movieData)
 
     const [paginationModel, setPaginationModel] = React.useState({
         pageSize: 25,
@@ -55,6 +59,13 @@ const SchedulingScreen = () => {
         { field: "id", headerName: "ID" },
         { field: "name", headerName: "Classroom name", flex: 1 },
         { field: "trainingTime", headerName: "Training time", flex: 1, valueGetter: (params) => `${params.row.course.trainingTime} months`},
+        { field: "startDate", headerName: "Start date", flex: 1, valueGetter: (params) => dayjs(params.row.startDate).format("DD/MM/YYYY") },
+        { field: "endDate", headerName: "End date", flex: 1, valueGetter: (params) => dayjs(params.row.endDate).format("DD/MM/YYYY") },
+      ]
+
+      const previewColumns = [
+        { field: "id", headerName: "ID", valueGetter: (params) => params.row?.classroom.id },
+        { field: "classroomName", headerName: "Classroom name", valueGetter: (params) => params.row?.classroom.name },
         { field: "startDate", headerName: "Start date", flex: 1, valueGetter: (params) => dayjs(params.row.startDate).format("DD/MM/YYYY") },
         { field: "endDate", headerName: "End date", flex: 1, valueGetter: (params) => dayjs(params.row.endDate).format("DD/MM/YYYY") },
       ]
@@ -81,9 +92,10 @@ const SchedulingScreen = () => {
     const callGenerateTimetable = (requestData) => {
         try {
             apiHelper().post("/timetables/generate", requestData).then((response) => {
-                callGetNotArrangedClassrooms();
-                callGetAllSchedule();
-                setConfirm("Generate timetable successfully!");
+                setTempData(response.data);
+                // callGetNotArrangedClassrooms();
+                // callGetAllSchedule();
+                // setConfirm("Generate timetable successfully!");
             }, (e) => {
             if (e.message == MESSAGE_INVALID_TOKEN) {
                 localStorage.clear();
@@ -153,6 +165,10 @@ const SchedulingScreen = () => {
     const handleCloseConfirmDialog = () => {
         setConfirm(null);
     }
+
+    const handleClosePreviewDialog = () => {
+      setTempData(null);
+  }
 
     useEffect(() => {
         if (localStorage.getItem(ROLE) === MANAGER_ROLE) {
@@ -328,6 +344,38 @@ const SchedulingScreen = () => {
             <Button onClick={handleCloseErrorDialog} autoFocus>
               Agree
             </Button>
+          </DialogActions>
+        </Dialog> : <></>
+      }
+      {
+        tempData ? <Dialog
+          open={tempData}
+          fullScreen
+          // TransitionComponent={Transition}
+          keepMounted
+          onClose={handleClosePreviewDialog}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle>{`Arrange schedule`}</DialogTitle>
+          <Box mx={3} my={1}>
+          <DataGrid
+          getRowId={(row) => `${row.classroom.id}|${row.subject.id}`}
+          // checkboxSelection disableRowSelectionOnClick
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
+                  columns={previewColumns}
+                  rows={tempData}
+                  groupBy={['classroom.name']}
+                  // onRowSelectionModelChange={(selectedRows) => {
+                    // setSelectedList(selectedRows);
+                  // }}
+                />
+          </Box>
+          <DialogActions>
+          <Button onClick={() => {
+                
+            }}>Confirm</Button>
+            <Button onClick={handleClosePreviewDialog}>Cancel</Button>
           </DialogActions>
         </Dialog> : <></>
       }
