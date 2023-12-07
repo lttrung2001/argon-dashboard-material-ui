@@ -45,6 +45,8 @@ import categoriesListData from "layouts/dashboard/data/categoriesListData";
 import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Box, MenuItem, Typography } from "@mui/material";
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 function Default() {
   const { size } = typography;
@@ -54,6 +56,8 @@ function Default() {
     totalOfYearCompareToLastYear: 0
   });
   const [courses, setCourses] = React.useState([]);
+  const [years, setYears] = React.useState([]);
+  const [selectedYear, setSelectedYear] = React.useState(null);
   const [error, setError] = React.useState();
   const [gradientLineChartData, setGradientLineChartData] = React.useState({
     labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -70,9 +74,9 @@ function Default() {
     return course.numberOfStudents * course.tuition;
   }
 
-  const callGetStatistics = async () => {
+  const callGetStatistics = async (year) => {
     try {
-      apiHelper().get("/statistics").then((res) => {
+      apiHelper().get(`/statistics?year=${year}`).then((res) => {
         setData(res.data);
         setCourses(Array.from(res.data.courses).sort((firstCourse, secondCourse) => {
           return getTotal(secondCourse) - getTotal(firstCourse);
@@ -125,9 +129,37 @@ function Default() {
     }
   };
 
+  const callGetYears = async () => {
+    try {
+      apiHelper().get("/statistics/years").then((res) => {
+        setYears(res.data);
+        setSelectedYear(res.data[0]);
+        onYearChanged(res.data[0]);
+      }, (e) => {
+        if (e.message == MESSAGE_INVALID_TOKEN) {
+          localStorage.clear();
+          navigator(0);
+        } else {
+          setError(e.response.data.message);
+        }
+      });
+    } catch (e) {
+      setError(e.response.data.message);
+    }
+  };
+
   useState(() => {
-    callGetStatistics();
+    callGetYears();
   }, [])
+
+  const handleSelectYear = (event) => {
+    setSelectedYear(event.target.value);
+    onYearChanged(event.target.value);
+  };
+
+  const onYearChanged = (year) => {
+    callGetStatistics(year);
+  }
 
   const getPercentString = (number) => {
     if (number > 0) {
@@ -184,6 +216,23 @@ function Default() {
           </Grid>
         </Grid> : <></>
         }
+        <Box mb={2} width={300}>
+        <Typography fontSize={14}>Year</Typography>
+        <Select
+    labelId="demo-simple-select-label"
+    id="demo-simple-select"
+    defaultValue={selectedYear}
+    value={selectedYear}
+    label="Year"
+    onChange={handleSelectYear}
+  >
+    {
+      Array.from(years).map((year) => {
+        return <MenuItem key={year} value={year}>{year}</MenuItem>
+      })
+    }
+  </Select>
+        </Box>
         <Grid container spacing={3} mb={3}>
           <Grid item xs={12} lg={7}>
             <GradientLineChart

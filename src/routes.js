@@ -59,6 +59,7 @@ import TeachingTable from "layouts/teaching";
 import SchedulingScreen from './layouts/scheduling/index';
 import ScoreRateConfiguration from "layouts/configuration";
 import ScoresViewTable from "layouts/scoresview";
+import TeachingClassroomTable from "layouts/teaching-classrooms";
 
 // localStorage.clear();
 var routes = [];
@@ -92,6 +93,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
         ),
         component: <RegistrationsTable />,
+      },
+      {
+        type: "route",
+        name: "Teaching classrooms",
+        key: "teaching-classrooms",
+        route: "/teaching-classrooms",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <TeachingClassroomTable />,
       },
       {
         type: "route",
@@ -211,16 +222,6 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
     routes = [
       {
         type: "route",
-        name: "Scheduling",
-        key: "scheduling",
-        route: "/scheduling",
-        icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
-        ),
-        component: <SchedulingScreen />,
-      },
-      {
-        type: "route",
         name: "Teaching",
         key: "teaching",
         route: "/teaching",
@@ -228,6 +229,26 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
         ),
         component: <TeachingTable />,
+      },
+      {
+        type: "route",
+        name: "Teaching classrooms",
+        key: "teaching-classrooms",
+        route: "/teaching-classrooms",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <TeachingClassroomTable />,
+      },
+      {
+        type: "route",
+        name: "Scheduling",
+        key: "scheduling",
+        route: "/scheduling",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
+        ),
+        component: <SchedulingScreen />,
       },
       {
         type: "route",

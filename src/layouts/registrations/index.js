@@ -143,9 +143,9 @@ function RegistrationsTable() {
   const registrationColumns = [
     { field: "id", headerName: "ID", valueGetter: (params) => params.row?.student.id },
     { field: "fullName", headerName: "Fullname", flex: 1, valueGetter: (params) => params.row?.student.fullName },
-    { field: "dob", headerName: "Day of birth", flex: 1, valueGetter: (params) => dayjs(params.row?.student.dob).format("DD/MM/YYYY") },
-    { field: "email", headerName: "Email", flex: 1, valueGetter: (params) => params.row?.student.email },
-    { field: "phoneNumber", headerName: "Phone number", flex: 1, valueGetter: (params) => params.row?.student.phoneNumber },
+    // { field: "dob", headerName: "Day of birth", flex: 1, valueGetter: (params) => dayjs(params.row?.student.dob).format("DD/MM/YYYY") },
+    { field: "email", headerName: "Email", flex: 0.5, valueGetter: (params) => params.row?.student.email },
+    { field: "phoneNumber", headerName: "Phone number", flex: 0.5, valueGetter: (params) => params.row?.student.phoneNumber },
     {
       field: "status",
       headerName: "Status",
