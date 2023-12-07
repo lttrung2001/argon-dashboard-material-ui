@@ -591,7 +591,7 @@ function CoursesTable() {
                     setCourses(originCourses);
                   } else {
                     setCourses(Array.from(originCourses).filter((course) => {
-                      return String(course.id).includes(value) || String(course.name).includes(value);
+                      return String(course.id).toLowerCase().includes(value.toLowerCase()) || String(course.name.toLowerCase()).includes(value.toLowerCase());
                     }));
                   }
                 }}
@@ -693,7 +693,7 @@ function CoursesTable() {
                     setClassrooms(originClassrooms);
                   } else {
                     setClassrooms(Array.from(originClassrooms).filter((classroom) => {
-                      return String(classroom.id).includes(value) || String(classroom.name).includes(value);
+                      return String(classroom.id).toLowerCase().includes(value.toLowerCase()) || String(classroom.name).toLowerCase().includes(value.toLowerCase());
                     }));
                   }
                 }}
