@@ -69,7 +69,9 @@ function ScoresViewTable() {
   const callGetClassrooms = async () => {
     try {
       apiHelper().get(`/classrooms`).then((response) => {
-        const classrooms = response.data;
+        const classrooms = Array.from(response.data).filter((c) => {
+          return c.registrationList.length > 0;
+        });
         setClassrooms(classrooms);
         if (classrooms.length > 0) {
           const firstClassroom = classrooms[0];
