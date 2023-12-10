@@ -55,6 +55,9 @@ import dayjs, { Dayjs } from 'dayjs';
 function Default() {
   const { size } = typography;
 
+  const currentDate = new Date();
+  const currentDateLastYear = new Date();
+  currentDateLastYear.setFullYear(currentDateLastYear.getFullYear() - 1);
   const navigator = useNavigate();
   const [data, setData] = React.useState({
     totalOfYearCompareToLastYear: 0
@@ -63,8 +66,8 @@ function Default() {
   const [years, setYears] = React.useState([]);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [error, setError] = React.useState();
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
+  const [startDate, setStartDate] = React.useState(dayjs(currentDateLastYear));
+  const [endDate, setEndDate] = React.useState(dayjs(currentDate));
   const [otherStatistic, setOtherStatistic] = React.useState(null);
   const [gradientLineChartData, setGradientLineChartData] = React.useState({
     labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -81,13 +84,12 @@ function Default() {
     return course.numberOfStudents * course.tuition;
   }
 
-  const callGetStatistics = async (year) => {
+  const callGetStatistics = async (year, startDate, endDate) => {
     try {
-      const requestData = otherStatistic ? {
+      const requestData = {
+        year: year,
         startDate: startDate,
         endDate: endDate
-      } : {
-        year: year
       }
       apiHelper().post(`/statistics`, requestData).then((res) => {
         setData(res.data);
@@ -101,21 +103,23 @@ function Default() {
           };
         }));
         const lbls = Array.from(res.data.monthlyStatisticList).map((item) => {
-          switch (item.month) {
-            case 1: return "Jan"
-            case 2: return "Feb"
-            case 3: return "Mar"
-            case 4: return "Apr"
-            case 5: return "May"
-            case 6: return "Jun"
-            case 7: return "Jul"
-            case 8: return "Aug"
-            case 9: return "Sep"
-            case 10: return "Oct"
-            case 11: return "Nov"
-            case 12: return "Dec"
-          }
-        })
+          return item.month;
+          // switch (item.month) {
+          //   case 1: return "Jan"
+          //   case 2: return "Feb"
+          //   case 3: return "Mar"
+          //   case 4: return "Apr"
+          //   case 5: return "May"
+          //   case 6: return "Jun"
+          //   case 7: return "Jul"
+          //   case 8: return "Aug"
+          //   case 9: return "Sep"
+          //   case 10: return "Oct"
+          //   case 11: return "Nov"
+          //   case 12: return "Dec"
+          // }
+        });
+        console.log(lbls);
         const valueList = Array.from(res.data.monthlyStatisticList).map((item) => {
           return item.total;
         })
@@ -171,7 +175,7 @@ function Default() {
   };
 
   const onYearChanged = (year) => {
-    callGetStatistics(year);
+    callGetStatistics(year, null, null);
   }
 
   const getPercentString = (number) => {
@@ -241,6 +245,7 @@ function Default() {
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setStartDate(newDate);
+                      callGetStatistics(0, newDate.format("DD/MM/YYYY"), endDate.format("DD/MM/YYYY"));
                     }}
                     defaultValue={startDate}
                   />
@@ -254,6 +259,7 @@ function Default() {
                     format="DD/MM/YYYY"
                     onAccept={(newDate) => {
                       setEndDate(newDate);
+                      callGetStatistics(0, startDate.format("DD/MM/YYYY"), newDate.format("DD/MM/YYYY"));
                     }}
                     defaultValue={endDate}
                   />
@@ -261,8 +267,9 @@ function Default() {
               </LocalizationProvider>
               <Button onClick={() => {
                 setOtherStatistic(false);
-                setStartDate(null);
-                setEndDate(null);
+                // setStartDate(null);
+                // setEndDate(null);
+                callGetYears();
               }}>View by year</Button>
             </> : <>
               <Typography fontSize={14}>Year</Typography>
@@ -281,9 +288,10 @@ function Default() {
                 }
               </Select>
               <Button onClick={() => {
-                setStartDate(dayjs(new Date()));
-                setEndDate(dayjs(new Date()));
+                // setStartDate(dayjs(new Date()));
+                // setEndDate(dayjs(new Date()));
                 setOtherStatistic(true);
+                callGetStatistics(0, startDate.format("DD/MM/YYYY"), endDate.format("DD/MM/YYYY"));
               }}>View by date range</Button></>
           }
         </Box>
@@ -293,7 +301,7 @@ function Default() {
               title="Sales Overview"
               description={
                 <ArgonBox display="flex" alignItems="center">
-                  <ArgonBox fontSize={size.lg} color="success" mb={0.3} mr={0.5} lineHeight={0}>
+                  {/* <ArgonBox fontSize={size.lg} color="success" mb={0.3} mr={0.5} lineHeight={0}>
                     <Icon sx={{ fontWeight: "bold" }}>{getIcon()}</Icon>
                   </ArgonBox>
                   <ArgonTypography variant="button" color="text" fontWeight="medium">
@@ -301,7 +309,7 @@ function Default() {
                     <ArgonTypography variant="button" color="text" fontWeight="regular">
                       {`in ${new Date().getFullYear()}`}
                     </ArgonTypography>
-                  </ArgonTypography>
+                  </ArgonTypography> */}
                 </ArgonBox>
               }
               chart={gradientLineChartData}
