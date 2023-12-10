@@ -94,16 +94,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
         ),
         component: <RegistrationsTable />,
       },
-      {
-        type: "route",
-        name: "Teaching classrooms",
-        key: "teaching-classrooms",
-        route: "/teaching-classrooms",
-        icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
-        ),
-        component: <TeachingClassroomTable />,
-      },
+      // {
+      //   type: "route",
+      //   name: "Teaching classrooms",
+      //   key: "teaching-classrooms",
+      //   route: "/teaching-classrooms",
+      //   icon: (
+      //     <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+      //   ),
+      //   component: <TeachingClassroomTable />,
+      // },
       {
         type: "route",
         name: "Teachers",
@@ -146,6 +146,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
       },
       {
         type: "route",
+        name: "Scheduling",
+        key: "scheduling",
+        route: "/scheduling",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
+        ),
+        component: <SchedulingScreen />,
+      },
+      {
+        type: "route",
         name: "Scores",
         key: "scores",
         route: "/scores",
@@ -163,16 +173,6 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-books" />
         ),
         component: <ScoresViewTable />,
-      },
-      {
-        type: "route",
-        name: "Scheduling",
-        key: "scheduling",
-        route: "/scheduling",
-        icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-calendar-grid-58" />
-        ),
-        component: <SchedulingScreen />,
       },
       {
         type: "route",
@@ -222,16 +222,6 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
     routes = [
       {
         type: "route",
-        name: "Teaching",
-        key: "teaching",
-        route: "/teaching",
-        icon: (
-          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
-        ),
-        component: <TeachingTable />,
-      },
-      {
-        type: "route",
         name: "Teaching classrooms",
         key: "teaching-classrooms",
         route: "/teaching-classrooms",
@@ -239,6 +229,16 @@ if (localStorage.getItem(ACCESS_TOKEN)) {
           <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
         ),
         component: <TeachingClassroomTable />,
+      },
+      {
+        type: "route",
+        name: "Teaching",
+        key: "teaching",
+        route: "/teaching",
+        icon: (
+          <ArgonBox component="i" color="warning" fontSize="14px" className="ni ni-single-02" />
+        ),
+        component: <TeachingTable />,
       },
       {
         type: "route",

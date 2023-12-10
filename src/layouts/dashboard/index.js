@@ -45,8 +45,12 @@ import categoriesListData from "layouts/dashboard/data/categoriesListData";
 import apiHelper, { MESSAGE_INVALID_TOKEN, SERVICE_UNAVAILABLE } from "../../utils/Axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, MenuItem, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogContent, MenuItem, Typography, DialogTitle, DialogActions } from "@mui/material";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 function Default() {
   const { size } = typography;
@@ -59,6 +63,9 @@ function Default() {
   const [years, setYears] = React.useState([]);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [error, setError] = React.useState();
+  const [startDate, setStartDate] = React.useState(null);
+  const [endDate, setEndDate] = React.useState(null);
+  const [otherStatistic, setOtherStatistic] = React.useState(null);
   const [gradientLineChartData, setGradientLineChartData] = React.useState({
     labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [
@@ -69,14 +76,20 @@ function Default() {
       },
     ],
   });
-  
+
   const getTotal = (course) => {
     return course.numberOfStudents * course.tuition;
   }
 
   const callGetStatistics = async (year) => {
     try {
-      apiHelper().get(`/statistics?year=${year}`).then((res) => {
+      const requestData = otherStatistic ? {
+        startDate: startDate,
+        endDate: endDate
+      } : {
+        year: year
+      }
+      apiHelper().post(`/statistics`, requestData).then((res) => {
         setData(res.data);
         setCourses(Array.from(res.data.courses).sort((firstCourse, secondCourse) => {
           return getTotal(secondCourse) - getTotal(firstCourse);
@@ -173,7 +186,7 @@ function Default() {
 
   const getIcon = () => {
     if (data.totalOfYearCompareToLastYear >= 0) return `arrow_upward`
-                      else return `arrow_downward`
+    else return `arrow_downward`
   }
 
   return (
@@ -182,56 +195,97 @@ function Default() {
       <ArgonBox py={3}>
         {
           data ? <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} md={6} lg={3}>
-            <DetailedStatisticsCard
-              title="today's money"
-              count={`${data.todayMoney} VND`}
-              icon={{ color: "info", component: <i className="ni ni-money-coins" /> }}
-              percentage={{ color: "success", count: `${getPercentString(data.todayPercentCompareToYesterday)}`, text: "since yesterday" }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <DetailedStatisticsCard
-              title="Opened courses"
-              count={`${data.openedCourses} courses`}
-              icon={{ color: "error", component: <i className="ni ni-world" /> }}
-              percentage={{ color: "success", count: "0%" }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <DetailedStatisticsCard
-              title="Opened classrooms"
-              count={`${data.openedClassrooms} classrooms`}
-              icon={{ color: "success", component: <i className="ni ni-paper-diploma" /> }}
-              percentage={{ color: "success", count: "0%" }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <DetailedStatisticsCard
-              title="Revenue"
-              count={`${data.totalOfYear} VND`}
-              icon={{ color: "warning", component: <i className="ni ni-cart" /> }}
-              percentage={{ color: "success", count: getPercentString(data.totalOfYearCompareToLastYear), text: "than last year" }}
-            />
-          </Grid>
-        </Grid> : <></>
+            <Grid item xs={12} md={6} lg={3}>
+              <DetailedStatisticsCard
+                title="today's money"
+                count={`${data.todayMoney} VND`}
+                icon={{ color: "info", component: <i className="ni ni-money-coins" /> }}
+                percentage={{ color: "success", count: `${getPercentString(data.todayPercentCompareToYesterday)}`, text: "since yesterday" }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <DetailedStatisticsCard
+                title="Opened courses"
+                count={`${data.openedCourses} courses`}
+                icon={{ color: "error", component: <i className="ni ni-world" /> }}
+                percentage={{ color: "success", count: "0%" }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <DetailedStatisticsCard
+                title="Opened classrooms"
+                count={`${data.openedClassrooms} classrooms`}
+                icon={{ color: "success", component: <i className="ni ni-paper-diploma" /> }}
+                percentage={{ color: "success", count: "0%" }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <DetailedStatisticsCard
+                title="Revenue"
+                count={`${data.totalOfYear} VND`}
+                icon={{ color: "warning", component: <i className="ni ni-cart" /> }}
+                percentage={{ color: "success", count: getPercentString(data.totalOfYearCompareToLastYear), text: "than last year" }}
+              />
+            </Grid>
+          </Grid> : <></>
         }
         <Box mb={2} width={300}>
-        <Typography fontSize={14}>Year</Typography>
-        <Select
-    labelId="demo-simple-select-label"
-    id="demo-simple-select"
-    defaultValue={selectedYear}
-    value={selectedYear}
-    label="Year"
-    onChange={handleSelectYear}
-  >
-    {
-      Array.from(years).map((year) => {
-        return <MenuItem key={year} value={year}>{year}</MenuItem>
-      })
-    }
-  </Select>
+          {
+            otherStatistic ? <>
+              <Typography fontSize={14}>Date range</Typography>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker
+                    maxDate={endDate}
+                    disableFuture
+                    format="DD/MM/YYYY"
+                    onAccept={(newDate) => {
+                      setStartDate(newDate);
+                    }}
+                    defaultValue={startDate}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker
+                    minDate={startDate}
+                    disableFuture
+                    format="DD/MM/YYYY"
+                    onAccept={(newDate) => {
+                      setEndDate(newDate);
+                    }}
+                    defaultValue={endDate}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+              <Button onClick={() => {
+                setOtherStatistic(false);
+                setStartDate(null);
+                setEndDate(null);
+              }}>View by year</Button>
+            </> : <>
+              <Typography fontSize={14}>Year</Typography>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                defaultValue={selectedYear}
+                value={selectedYear}
+                label="Year"
+                onChange={handleSelectYear}
+              >
+                {
+                  Array.from(years).map((year) => {
+                    return <MenuItem key={year} value={year}>{year}</MenuItem>
+                  })
+                }
+              </Select>
+              <Button onClick={() => {
+                setStartDate(dayjs(new Date()));
+                setEndDate(dayjs(new Date()));
+                setOtherStatistic(true);
+              }}>View by date range</Button></>
+          }
         </Box>
         <Grid container spacing={3} mb={3}>
           <Grid item xs={12} lg={7}>
