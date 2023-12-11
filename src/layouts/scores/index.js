@@ -62,8 +62,8 @@ function ScoresTable() {
   const [error, setError] = React.useState();
   const [classrooms, setClassrooms] = React.useState([]);
   const [scores, setScores] = React.useState([]);
-  const [selectedClassroom, setSelectedClassroom] = React.useState();
-  const [selectedClassroomSubject, setSelectedClassroomSubject] = React.useState();
+  const [selectedClassroom, setSelectedClassroom] = React.useState(null);
+  const [selectedClassroomSubject, setSelectedClassroomSubject] = React.useState(null);
   const navigator = useNavigate();
 
   const callGetClassrooms = async () => {
