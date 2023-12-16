@@ -210,8 +210,9 @@ function Header() {
               <TextField id="confirmPassword" name="confirmPassword" fullWidth />
             </Box>
             <DialogActions>
+            <Button type="submit">Submit</Button>
               <Button onClick={handleCloseChangePasswordDialog}>Cancel</Button>
-              <Button type="submit">Submit</Button>
+              
             </DialogActions>
           </Box>
         </Dialog> : <></>

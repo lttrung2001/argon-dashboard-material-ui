@@ -77,6 +77,7 @@ function ScoresTable() {
           setSelectedClassroomSubject(
             firstClassroom.classroomSubjects.length > 0 ? firstClassroom.classroomSubjects[0] : null
           );
+          callGetScores(firstClassroom.id, firstClassroom.classroomSubjects[0].subject.id)
         }
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -92,11 +93,11 @@ function ScoresTable() {
     }
   };
 
-  const callGetScores = async (classroomSubject) => {
+  const callGetScores = async (classroomId, subjectId) => {
     try {
       const requestData = {
-        classroomId: selectedClassroom.id,
-        subjectId: classroomSubject.subject.id
+        classroomId: classroomId,
+        subjectId: subjectId
       };
       apiHelper().post(`/scores`, requestData).then((response) => {
         const scores = response.data;
@@ -125,7 +126,7 @@ function ScoresTable() {
       console.log(requestData);
       apiHelper().post(`/scores/update`, requestData).then((response) => {
         changedMap.clear();
-        callGetScores(selectedClassroomSubject);
+        callGetScores(selectedClassroom.id, selectedClassroomSubject.subject.id);
         setMessage("Update scores successful!");
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -146,7 +147,7 @@ function ScoresTable() {
   }, []);
 
   const handleGetScores = (classroomSubject) => {
-    callGetScores(classroomSubject);
+    callGetScores(selectedClassroom.id, classroomSubject.subject.id);
   };
 
   const handleSaveScores = () => {

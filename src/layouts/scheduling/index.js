@@ -64,9 +64,9 @@ const SchedulingScreen = () => {
   ]
 
   const previewColumns = [
-    { field: "id", headerName: "ID", valueGetter: (params) => params.row?.classroom.id },
     { field: "classroomName", headerName: "Classroom name", flex: 1, valueGetter: (params) => params.row?.classroom.name },
     { field: "subjectName", headerName: "Subject name", flex: 1, valueGetter: (params) => params.row?.subject.name },
+    { field: "teacherName", headerName: "Teacher", flex: 1, valueGetter: (params) => params.row?.classroom.teacher.fullName },
     { field: "startDate", headerName: "Start date", flex: 0.5, valueGetter: (params) => dayjs(params.row.startDate).format("DD/MM/YYYY") },
     { field: "endDate", headerName: "End date", flex: 0.5, valueGetter: (params) => dayjs(params.row.endDate).format("DD/MM/YYYY") },
   ]

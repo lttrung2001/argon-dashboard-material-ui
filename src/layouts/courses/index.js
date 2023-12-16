@@ -261,6 +261,7 @@ function CoursesTable() {
         }
       }).then((response) => {
         callGetCourses();
+        callGetOpenCourses();
         setConfirm("Create course successfully!");
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -283,6 +284,7 @@ function CoursesTable() {
         }
       }).then((response) => {
         callGetCourses();
+        callGetOpenCourses();
         setConfirm("Update course successfully!");
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {
@@ -301,6 +303,7 @@ function CoursesTable() {
     try {
       apiHelper().delete(`/courses/delete?courseId=${courseId}`).then((response) => {
         callGetCourses();
+        callGetOpenCourses();
         setConfirm("Delete course successfully!");
       }, (e) => {
         if (e.message == MESSAGE_INVALID_TOKEN) {

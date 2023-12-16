@@ -234,9 +234,11 @@ function Default() {
           </Grid> : <></>
         }
         <Box mb={2} width={300}>
+        <ArgonTypography variant="h6" fontSize={20}>{otherStatistic ? "Date range" : "Year"}</ArgonTypography>
           {
             otherStatistic ? <>
-              <Typography fontSize={14}>Date range</Typography>
+              {/* <Typography fontSize={14}>Date range</Typography> */}
+              <Typography fontSize={14}>Start date</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
@@ -251,6 +253,7 @@ function Default() {
                   />
                 </DemoContainer>
               </LocalizationProvider>
+              <Typography mt={2} fontSize={14}>End date</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
@@ -272,7 +275,7 @@ function Default() {
                 callGetYears();
               }}>View by year</Button>
             </> : <>
-              <Typography fontSize={14}>Year</Typography>
+              {/* <Typography fontSize={14}>Year</Typography> */}
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
